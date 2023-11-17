@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.0",
+    "@upstash/ratelimit": "^0.4.4",
+    "@vercel/kv": "^1.0.0",
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18"
