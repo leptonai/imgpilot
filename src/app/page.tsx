@@ -1,8 +1,10 @@
 "use client";
+import { predefineElements } from "@/util/element";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { debounceTime, Subject, distinctUntilChanged } from "rxjs";
+
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
   {
@@ -46,6 +48,7 @@ export default function Home() {
 
   useEffect(() => {
     if (excalidrawAPI.current) {
+      change$.current.next();
       excalidrawAPI.current.onChange(() => {
         change$.current.next();
       });
@@ -74,10 +77,10 @@ export default function Home() {
           input_image: base64,
           lcm_steps: 50,
           prompt:
-            "A real photographic unicorn painting with incomparable reality, Super wide , bright sky, unicorn , white unicorn, Huge kingdom, Starry night, Harry potter, Volumetric lighting, Clearing, Realistic",
+            "Chibi Pixar style, cartoon style of a smart girl with long blonde loose hair , a smile on the front, and a black hoodie with normal hazel eyes, 3d rendering and aesthetic background, fashion",
           seed: 2159232,
           steps: 4,
-          strength: 0.8,
+          strength: 0.7,
           width: 768,
         };
         fetch("/api/run", {
@@ -100,6 +103,7 @@ export default function Home() {
       <div className="h-full w-full relative lg:flex">
         <div className="w-full h-1/2 lg:h-full lg:w-1/2">
           <Excalidraw
+            initialData={{ elements: predefineElements }}
             excalidrawAPI={(api) => {
               excalidrawAPI.current = api;
               setInitialed(true);
