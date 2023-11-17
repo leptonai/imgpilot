@@ -73,7 +73,8 @@ export default function Home() {
           height: 768,
           input_image: base64,
           lcm_steps: 50,
-          prompt: "Very majestic rooster",
+          prompt:
+            "A real photographic unicorn painting with incomparable reality, Super wide , bright sky, unicorn , white unicorn, Huge kingdom, Starry night, Harry potter, Volumetric lighting, Clearing, Realistic",
           seed: 2159232,
           steps: 4,
           strength: 0.8,
@@ -97,16 +98,16 @@ export default function Home() {
   return (
     <div className="inset-0 absolute">
       <div className="h-full w-full relative lg:flex">
-        <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex items-center justify-center">
-          {imgSrc && <img alt="img" height={768} width={768} src={imgSrc} />}
-        </div>
-        <div className="w-full lg:w-1/2 h-full">
+        <div className="w-full h-1/2 lg:h-full lg:w-1/2">
           <Excalidraw
             excalidrawAPI={(api) => {
               excalidrawAPI.current = api;
               setInitialed(true);
             }}
           ></Excalidraw>
+        </div>
+        <div className="w-full h-1/2 lg:h-full lg:w-1/2 bg-zinc-100 flex items-center justify-center">
+          {imgSrc && <img alt="img" height={768} width={768} src={imgSrc} />}
         </div>
       </div>
     </div>
