@@ -22,6 +22,34 @@ body {
       to bottom,
       transparent,
       rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  ) rgb(var(--background-start-rgb));
+}
+
+
+.dropdown-menu-button.main-menu-trigger.zen-mode-transition {
+  display: none;
+}
+
+.layer-ui__wrapper__top-right.zen-mode-transition, .layer-ui__wrapper__footer-right.zen-mode-transition {
+  display: none !important;
+}
+
+.ToolIcon__keybinding, .App-toolbar__divider {
+  display: none;
+}
+
+[title="Hand (panning tool) — H"], [title="Keep selected tool active after drawing — Q"], [title="More tools"] {
+  display: none !important;
+}
+
+.HintViewer {
+  display: none !important;
+}
+
+.mobile-misc-tools-container {
+  display: none !important;
+}
+
+.layer-ui__wrapper__footer-left {
+  display: none;
 }
