@@ -14,7 +14,8 @@
     "@vercel/kv": "^1.0.0",
     "next": "14.0.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@types/node": "^20",
