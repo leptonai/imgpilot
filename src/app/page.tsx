@@ -37,7 +37,7 @@ export default function Home() {
       elements,
       files: excalidrawAPI.current.getFiles(),
       getDimensions: () => {
-        return { width: 1024, height: 1024 };
+        return { width: 512, height: 512 };
       },
     });
     const base64 = await blobToBase64(blob);
@@ -70,27 +70,22 @@ export default function Home() {
       .subscribe((base64) => {
         const body = {
           guidance_scale: 8,
-          height: 1024,
+          height: 768,
           input_image: base64,
           lcm_steps: 50,
           prompt: "Very majestic rooster",
           seed: 2159232,
           steps: 4,
           strength: 0.8,
-          width: 1024,
+          width: 768,
         };
-        fetch("https://stable.bjz.edr.lepton.ai/run", {
+        fetch("/api/run", {
           headers: {
             accept: "image/jpeg",
-            authorization: "Bearer 8ee43d8a2aa24f3083336ac96bd12afb",
             "content-type": "application/json",
-            "x-lepton-deployment": "imgpilot",
           },
-          referrer: "https://dashboard.lepton.ai/",
           body: JSON.stringify(body),
           method: "POST",
-          mode: "cors",
-          credentials: "include",
         })
           .then((data) => data.blob())
           .then((data) => {
@@ -103,7 +98,7 @@ export default function Home() {
     <div className="inset-0 absolute">
       <div className="h-full w-full relative lg:flex">
         <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex items-center justify-center">
-          {imgSrc && <img alt="img" height={1024} width={1024} src={imgSrc} />}
+          {imgSrc && <img alt="img" height={768} width={768} src={imgSrc} />}
         </div>
         <div className="w-full lg:w-1/2 h-full">
           <Excalidraw
