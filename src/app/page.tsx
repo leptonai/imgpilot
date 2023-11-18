@@ -123,7 +123,7 @@ export default function Home() {
   return (
     <div className="inset-0 absolute">
       <div className="h-full w-full relative lg:flex">
-        <div className="w-full h-1/2 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-r lg:border-b-0">
+        <div className="w-full h-2/3 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-r lg:border-b-0">
           <Excalidraw
             initialData={{
               elements: predefineElements,
@@ -135,7 +135,7 @@ export default function Home() {
             }}
           ></Excalidraw>
         </div>
-        <div className="w-full h-1/2 lg:h-full lg:w-1/2 bg-zinc-200 flex items-center justify-center p-8">
+        <div className="w-full min-h-1/2 lg:h-full lg:w-1/2 bg-zinc-200 flex items-center justify-center p-8">
           <div className="border-zinc-300 border bg-white min-h-[300px] min-w-[300px]">
             {imgSrc && <img alt="img" src={imgSrc} />}
           </div>
