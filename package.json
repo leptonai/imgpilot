@@ -10,12 +10,19 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.0",
+    "@headlessui/react": "^1.7.17",
+    "@radix-ui/react-select": "^2.0.0",
     "@upstash/ratelimit": "^0.4.4",
     "@vercel/kv": "^1.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.292.0",
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tailwind-merge": "^2.0.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",

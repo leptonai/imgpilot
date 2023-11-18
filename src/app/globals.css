@@ -36,3 +36,22 @@ html, body {
 .layer-ui__wrapper__footer-left {
   display: none;
 }
+
+.excalidraw .App-top-bar {
+  flex-direction: row !important;
+}
+
+.shapes-section {
+  order: -999;
+  width: min-content;
+}
+
+.excalidraw .Stack_horizontal {
+  grid-auto-flow: row !important;
+}
+
+.Island.App-menu__left {
+  z-index: 100;
+  left: 0;
+  bottom: 0;
+}
