@@ -21,7 +21,7 @@ html, body {
   display: none;
 }
 
-[title="Hand (panning tool) — H"], [title="Keep selected tool active after drawing — Q"], [title="More tools"] {
+[title="Hand (panning tool) — H"], [title="Keep selected tool active after drawing — Q"], [title="More tools"], [title="Diamond — D or 3"], [title="Arrow — A or 5"], [title="Line — L or 6"], [title="Insert image — 9"] {
   display: none !important;
 }
 

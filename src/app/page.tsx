@@ -1,9 +1,9 @@
 "use client";
-import { predefineElements } from "@/util/element";
+import { predefineElements, predefineState } from "@/util/element";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { debounceTime, Subject, distinctUntilChanged } from "rxjs";
+import { debounceTime, Subject, distinctUntilChanged, fromEvent } from "rxjs";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -38,17 +38,39 @@ export default function Home() {
     const blob = await exportToBlob({
       elements,
       files: excalidrawAPI.current.getFiles(),
-      getDimensions: () => {
-        return { width: 512, height: 512 };
-      },
+      exportPadding: 24,
     });
     const base64 = await blobToBase64(blob);
     return base64.replace(/^data:image\/(png|jpg);base64,/, "");
   }, []);
 
   useEffect(() => {
+    const subscription = fromEvent(window, "resize")
+      .pipe(debounceTime(300))
+      .subscribe(() => {
+        excalidrawAPI.current?.scrollToContent(
+          excalidrawAPI.current?.getSceneElements(),
+          {
+            fitToContent: true,
+          },
+        );
+      });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     if (excalidrawAPI.current) {
       change$.current.next();
+      setTimeout(() => {
+        excalidrawAPI.current?.scrollToContent(
+          excalidrawAPI.current?.getSceneElements(),
+          {
+            fitToContent: true,
+          },
+        );
+      });
       excalidrawAPI.current.onChange(() => {
         change$.current.next();
       });
@@ -101,17 +123,22 @@ export default function Home() {
   return (
     <div className="inset-0 absolute">
       <div className="h-full w-full relative lg:flex">
-        <div className="w-full h-1/2 lg:h-full lg:w-1/2">
+        <div className="w-full h-1/2 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-r lg:border-b-0">
           <Excalidraw
-            initialData={{ elements: predefineElements }}
+            initialData={{
+              elements: predefineElements,
+              appState: predefineState,
+            }}
             excalidrawAPI={(api) => {
               excalidrawAPI.current = api;
               setInitialed(true);
             }}
           ></Excalidraw>
         </div>
-        <div className="w-full h-1/2 lg:h-full lg:w-1/2 bg-zinc-100 flex items-center justify-center">
-          {imgSrc && <img alt="img" height={768} width={768} src={imgSrc} />}
+        <div className="w-full h-1/2 lg:h-full lg:w-1/2 bg-zinc-200 flex items-center justify-center p-8">
+          <div className="border-zinc-300 border bg-white min-h-[300px] min-w-[300px]">
+            {imgSrc && <img alt="img" src={imgSrc} />}
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,14 @@
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import type { AppState } from "@excalidraw/excalidraw/types/types";
 
+export const predefineState: Partial<AppState> = {
+  activeTool: {
+    type: "freedraw",
+    customType: null,
+    locked: false,
+    lastActiveTool: null,
+  },
+};
 export const predefineElements: ExcalidrawElement[] = [
   {
     type: "ellipse",
