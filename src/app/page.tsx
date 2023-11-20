@@ -49,9 +49,15 @@ export default function Home() {
           />
         </div>
         <div className="-order-9 lg:order-1 w-full h-2/3 lg:h-full lg:w-1/2 border-b-2 border-zinc-300 lg:border-l-2 lg:border-b-0">
-          <Tldraw persistenceKey="imgpilot" forceMobile={true}>
+          <Tldraw
+            persistenceKey="imgpilot"
+            forceMobile={true}
+            snapshot={presets.snapshot}
+            onMount={(editor) => {
+              editor.setCurrentTool("draw");
+            }}
+          >
             <AutoDraw
-              snapshot={presets.snapshot}
               input={presets.input}
               prompt={prompt}
               onResponse={setResponse}

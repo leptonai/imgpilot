@@ -1,5 +1,4 @@
 import { useDrawResponse } from "@/components/tldraw/useDraw";
-import { StoreSnapshot } from "@tldraw/store";
 import { debounce, useEditor } from "@tldraw/tldraw";
 import { useEffect } from "react";
 
@@ -7,11 +6,9 @@ export function AutoDraw({
   prompt,
   input,
   onResponse,
-  snapshot,
 }: {
   prompt: string;
   input: string;
-  snapshot?: StoreSnapshot<any>;
   onResponse: (response: { data: string; loading: boolean }) => void;
 }) {
   const drawResponse = useDrawResponse(prompt, input);
@@ -24,13 +21,10 @@ export function AutoDraw({
   }, [editor]);
 
   useEffect(() => {
-    if (snapshot) {
-      editor.store.loadSnapshot(snapshot);
-      setTimeout(() => {
-        editor.zoomToFit();
-      });
-    }
-  }, [editor, snapshot]);
+    setTimeout(() => {
+      editor.zoomToFit();
+    });
+  }, [editor]);
 
   useEffect(() => {
     const autoResize = debounce(() => {
