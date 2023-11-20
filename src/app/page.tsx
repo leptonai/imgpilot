@@ -1,4 +1,5 @@
 "use client";
+import { GithubForkRibbon } from "@/components/github";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ToastAction } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
+import { useToast } from "@/components/ui/use-toast";
 import { blobToBase64 } from "@/lib/utils";
 import { predefineState, presets } from "@/util/presets";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
@@ -77,6 +81,7 @@ export default function Home() {
   const [presetName, setPresetName] = useState(presets[0].name);
   const [imgSrc, setImgSrc] = useState<string>(presets[0].base64);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const { prompt, elements, base64 } = presets.find(
@@ -205,11 +210,29 @@ export default function Home() {
             setImgSrc(base64);
           }
         },
+        error: () => {
+          loadingRef.current = false;
+          setLoading(false);
+          toast({
+            title: "We are overloaded with service",
+            description:
+              "Please try again later or visit our github repo for local deployment.",
+            action: (
+              <ToastAction asChild altText="Try again">
+                <a href="https://github.com/leptonai/imgpilot" target="_blank">
+                  Github
+                </a>
+              </ToastAction>
+            ),
+          });
+        },
       });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
   return (
     <div className="inset-0 absolute">
+      <Toaster></Toaster>
+      <GithubForkRibbon></GithubForkRibbon>
       <div className="h-full w-full flex flex-col lg:flex-row">
         <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex flex-col items-center justify-center py-4 px-8 gap-4">
           <Select

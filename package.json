@@ -13,6 +13,8 @@
     "@headlessui/react": "^1.7.17",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@uiw/react-github-corners": "^1.5.16",
     "@upstash/ratelimit": "^0.4.4",
     "@vercel/analytics": "^1.1.1",
     "@vercel/kv": "^1.0.0",
