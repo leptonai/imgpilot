@@ -9,10 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@excalidraw/excalidraw": "^0.17.0",
-    "@headlessui/react": "^1.7.17",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@tldraw/tldraw": "^2.0.0-canary.ba4091c59418",
     "@upstash/ratelimit": "^0.4.4",
     "@vercel/kv": "^1.0.0",
     "class-variance-authority": "^0.7.0",
@@ -21,7 +20,7 @@
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18",
-    "rxjs": "^7.8.1",
+    "swr": "^2.2.4",
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7"
   },

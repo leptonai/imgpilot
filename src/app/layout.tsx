@@ -7,6 +7,12 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "ImgPilot",
   description: "Your Image Copilot",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+    maximumScale: 1,
+  },
 };
 
 export default function RootLayout({
