@@ -18,7 +18,7 @@ export const presets: {
 }[] = [
   {
     name: "Watercolor",
-    prompt: "a beautiful chinese watercolor painting of the mountainous",
+    prompt: "a beautiful Chinese watercolor painting of the mountainous",
     elements: [
       {
         type: "freedraw",

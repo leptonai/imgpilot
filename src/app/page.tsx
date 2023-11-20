@@ -75,7 +75,7 @@ export default function Home() {
   const loadingRef = useRef(false);
   const [initialed, setInitialed] = useState(false);
   const [presetName, setPresetName] = useState(presets[0].name);
-  const [imgSrc, setImgSrc] = useState<string>("");
+  const [imgSrc, setImgSrc] = useState<string>(presets[0].base64);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -121,14 +121,16 @@ export default function Home() {
 
   useEffect(() => {
     const element$ = merge(
-      elementsRef$.current.pipe(skip(1)),
+      elementsRef$.current,
       excalidrawChange$.current.pipe(
         debounceTime(300),
-        map(() => excalidrawAPIRef.current!.getSceneElements()),
+        mergeMap(() =>
+          excalidrawAPIRef$.current.pipe(map((api) => api.getSceneElements())),
+        ),
       ),
     );
     const base64FromExcalidraw$ = merge(
-      element$,
+      element$.pipe(skip(1)),
       excalidrawAPIRef$.current,
     ).pipe(
       debounceTime(300),
@@ -215,7 +217,7 @@ export default function Home() {
             value={presetName}
             onValueChange={setPresetName}
           >
-            <SelectTrigger className="w-full flex-0">
+            <SelectTrigger className="w-full flex-0 !ring-0 !ring-offset-0">
               <SelectValue placeholder="Select a preset" />
             </SelectTrigger>
             <SelectContent>
@@ -240,7 +242,7 @@ export default function Home() {
           <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
-              className="flex-0"
+              className="flex-0 !ring-0 border-zinc-300 !ring-offset-0"
               ref={inputRef}
               placeholder="Prompt"
               onChange={(e) => promptRef$.current.next(e.target.value)}
