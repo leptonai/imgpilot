@@ -1,24 +1,37 @@
 import { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
-import { kv } from "@vercel/kv";
+import { createClient } from "@vercel/kv";
 
-const API_URL = process.env.API_URL || "localhost:8080";
-const API_TOKEN = process.env.API_TOKEN || "Invalid";
+const API_URL = process.env?.API_URL || "localhost:8080";
+const API_TOKEN = process.env?.API_TOKEN || "";
 
-const ratelimit = new Ratelimit({
-  redis: kv,
-  // 10 requests from the same IP in 1 second
-  limiter: Ratelimit.slidingWindow(10, "1 s"),
-});
+const kv =
+  process.env?.KV_REST_API_URL && process.env?.KV_REST_API_TOKEN
+    ? createClient({
+        url: process.env.KV_REST_API_URL,
+        token: process.env.KV_REST_API_TOKEN,
+      })
+    : null;
+
+const ratelimit = kv
+  ? new Ratelimit({
+      redis: kv,
+      // 10 requests from the same IP in 1 second
+      limiter: Ratelimit.slidingWindow(10, "1 s"),
+    })
+  : null;
 
 export async function POST(req: NextRequest) {
   const ip = req.ip ?? "::1";
-  const { remaining } = await ratelimit.limit(ip);
 
-  if (remaining < 1) {
-    return new Response("Too many requests", {
-      status: 429,
-    });
+  if (ratelimit) {
+    const { remaining } = await ratelimit.limit(ip);
+
+    if (remaining < 1) {
+      return new Response("Too many requests", {
+        status: 429,
+      });
+    }
   }
 
   const headers = new Headers();
