@@ -61,33 +61,36 @@ const getBase64 = async (
   return await blobToBase64(blob);
 };
 export default function Home() {
-  const excalidrawAPI = useRef<ExcalidrawImperativeAPI | null>(null);
-  const elements$ = useRef(
+  const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null);
+  const elementsRef$ = useRef(
     new ReplaySubject<readonly NonDeletedExcalidrawElement[]>(1),
   );
   const promptRef$ = useRef(new ReplaySubject<string>(1));
-  const beautify$ = useRef(new Subject<string>());
-  const excalidrawAPI$ = useRef(new ReplaySubject<ExcalidrawImperativeAPI>(1));
-  const input = useRef<HTMLInputElement>(null);
+  const beautifyRef$ = useRef(new Subject<string>());
+  const excalidrawChange$ = useRef(new ReplaySubject<void>(1));
+  const excalidrawAPIRef$ = useRef(
+    new ReplaySubject<ExcalidrawImperativeAPI>(1),
+  );
+  const inputRef = useRef<HTMLInputElement>(null);
+  const loadingRef = useRef(false);
   const [initialed, setInitialed] = useState(false);
   const [presetName, setPresetName] = useState(presets[0].name);
   const [imgSrc, setImgSrc] = useState<string>("");
-  const loading = useRef(false);
-  const [beautifyLoading, setBeautifyLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const { prompt, elements, base64 } = presets.find(
       (p) => p.name === presetName,
     )!;
-    elements$.current.next(elements);
+    elementsRef$.current.next(elements);
     promptRef$.current.next(prompt);
     setImgSrc(base64);
-    if (input.current) {
-      input.current.value = prompt;
+    if (inputRef.current) {
+      inputRef.current.value = prompt;
     }
-    if (excalidrawAPI.current) {
-      excalidrawAPI.current.updateScene({ elements: elements });
-      zoomToFit(excalidrawAPI.current);
+    if (excalidrawAPIRef.current) {
+      excalidrawAPIRef.current.updateScene({ elements: elements });
+      zoomToFit(excalidrawAPIRef.current);
     }
   }, [presetName]);
 
@@ -97,10 +100,10 @@ export default function Home() {
         debounceTime(300),
         map(() => window.innerWidth),
         distinctUntilChanged(),
-        filter(() => !!excalidrawAPI.current),
+        filter(() => !!excalidrawAPIRef.current),
       )
       .subscribe(() => {
-        zoomToFit(excalidrawAPI.current!);
+        zoomToFit(excalidrawAPIRef.current!);
       });
     return () => {
       subscription.unsubscribe();
@@ -108,26 +111,33 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (excalidrawAPI.current) {
-      setTimeout(() => zoomToFit(excalidrawAPI.current!));
-      excalidrawAPI.current.onPointerUp(() => {
-        elements$.current.next(excalidrawAPI.current!.getSceneElements());
+    if (excalidrawAPIRef.current) {
+      setTimeout(() => zoomToFit(excalidrawAPIRef.current!));
+      excalidrawAPIRef.current.onPointerUp(() => {
+        excalidrawChange$.current.next();
       });
     }
   }, [initialed]);
 
   useEffect(() => {
+    const element$ = merge(
+      elementsRef$.current.pipe(skip(1)),
+      excalidrawChange$.current.pipe(
+        debounceTime(300),
+        map(() => excalidrawAPIRef.current!.getSceneElements()),
+      ),
+    );
     const base64FromExcalidraw$ = merge(
-      elements$.current.pipe(skip(1)),
-      excalidrawAPI$.current,
+      element$,
+      excalidrawAPIRef$.current,
     ).pipe(
       debounceTime(300),
-      mergeMap(() => excalidrawAPI$.current),
+      mergeMap(() => excalidrawAPIRef$.current),
       filter((e) => !!e),
       mergeMap(() =>
-        elements$.current.pipe(
+        element$.pipe(
           mergeMap((elements) =>
-            excalidrawAPI$.current.pipe(
+            excalidrawAPIRef$.current.pipe(
               map((api) => ({
                 api,
                 elements,
@@ -139,7 +149,9 @@ export default function Home() {
       mergeMap(({ api, elements }) => from(getBase64(elements, api))),
       distinctUntilChanged(),
     );
-    const base64FromBeautify$ = beautify$.current.pipe(distinctUntilChanged());
+    const base64FromBeautify$ = beautifyRef$.current.pipe(
+      distinctUntilChanged(),
+    );
     const base64$ = merge(base64FromBeautify$, base64FromExcalidraw$).pipe(
       map((v) => v.replace(/^data:image\/(png|jpeg);base64,/, "")),
     );
@@ -155,10 +167,10 @@ export default function Home() {
           ),
         ),
         debounceTime(300),
-        filter(() => !loading.current),
+        filter(() => !loadingRef.current),
         switchMap(([input_image, prompt]) => {
-          loading.current = true;
-          setBeautifyLoading(true);
+          loadingRef.current = true;
+          setLoading(true);
           const body = {
             guidance_scale: 8,
             input_image,
@@ -182,8 +194,8 @@ export default function Home() {
       )
       .subscribe({
         next: async (data) => {
-          loading.current = false;
-          setBeautifyLoading(false);
+          loadingRef.current = false;
+          setLoading(false);
           const blob = await data.blob();
           const base64 = await blobToBase64(blob);
           const count = base64.split("AooooAKKKKACiiig").length;
@@ -199,7 +211,7 @@ export default function Home() {
       <div className="h-full w-full flex flex-col lg:flex-row">
         <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex flex-col items-center justify-center py-4 px-8 gap-4">
           <Select
-            disabled={beautifyLoading}
+            disabled={loading}
             value={presetName}
             onValueChange={setPresetName}
           >
@@ -216,17 +228,6 @@ export default function Home() {
           </Select>
           <div className="border-zinc-300 border bg-white flex-1 w-full rounded relative">
             <div className="absolute inset-0 flex justify-center items-center">
-              <Button
-                disabled={beautifyLoading || !imgSrc}
-                className="absolute top-2 right-2 h-6"
-                size="sm"
-                onClick={() => {
-                  setBeautifyLoading(true);
-                  beautify$.current.next(imgSrc);
-                }}
-              >
-                {beautifyLoading ? "Processing" : "Beautify"}
-              </Button>
               {imgSrc && (
                 <img
                   alt="img"
@@ -236,13 +237,25 @@ export default function Home() {
               )}
             </div>
           </div>
-          <Input
-            type="text"
-            className="flex-0"
-            ref={input}
-            placeholder="Prompt"
-            onChange={(e) => promptRef$.current.next(e.target.value)}
-          />
+          <div className="flex w-full items-center space-x-2">
+            <Input
+              type="text"
+              className="flex-0"
+              ref={inputRef}
+              placeholder="Prompt"
+              onChange={(e) => promptRef$.current.next(e.target.value)}
+            />
+            <Button
+              disabled={loading || !imgSrc}
+              size="sm"
+              onClick={() => {
+                setLoading(true);
+                beautifyRef$.current.next(imgSrc);
+              }}
+            >
+              {loading ? "Processing" : "Beautify"}
+            </Button>
+          </div>
         </div>
         <div className="-order-9 lg:order-1 w-full h-2/3 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-l lg:border-b-0">
           <Excalidraw
@@ -251,8 +264,8 @@ export default function Home() {
               appState: predefineState,
             }}
             excalidrawAPI={(api) => {
-              excalidrawAPI.current = api;
-              excalidrawAPI$.current.next(api);
+              excalidrawAPIRef.current = api;
+              excalidrawAPIRef$.current.next(api);
               setInitialed(true);
             }}
           ></Excalidraw>
