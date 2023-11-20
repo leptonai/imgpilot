@@ -8,3 +8,6 @@ html, body {
   width: 100%;
 }
 
+.tlui-menu-zone {
+  display: none;
+}

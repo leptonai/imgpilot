@@ -8,7 +8,7 @@ const API_TOKEN = process.env.API_TOKEN || "Invalid";
 const ratelimit = new Ratelimit({
   redis: kv,
   // 10 requests from the same IP in 1 second
-  limiter: Ratelimit.slidingWindow(10, "1 s"),
+  limiter: Ratelimit.slidingWindow(100, "1 s"),
 });
 
 export async function POST(req: NextRequest) {
