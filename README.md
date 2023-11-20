@@ -1,5 +1,7 @@
 ## ImgPilot
 
+![preview](https://imgpilot.com/preview.gif)
+
 First, run the development server:
 
 ```bash
