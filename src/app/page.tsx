@@ -30,7 +30,6 @@ import {
   ReplaySubject,
   skip,
   Subject,
-  switchMap,
 } from "rxjs";
 import { fromFetch } from "rxjs/fetch";
 
@@ -67,7 +66,7 @@ const getBase64 = async (
 export default function Home() {
   const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null);
   const elementsRef$ = useRef(
-    new ReplaySubject<readonly NonDeletedExcalidrawElement[]>(1),
+    new Subject<readonly NonDeletedExcalidrawElement[]>(),
   );
   const promptRef$ = useRef(new ReplaySubject<string>(1));
   const beautifyRef$ = useRef(new Subject<string>());
@@ -118,6 +117,7 @@ export default function Home() {
   useEffect(() => {
     if (excalidrawAPIRef.current) {
       setTimeout(() => zoomToFit(excalidrawAPIRef.current!));
+      excalidrawChange$.current.next();
       excalidrawAPIRef.current.onPointerUp(() => {
         excalidrawChange$.current.next();
       });
@@ -153,14 +153,16 @@ export default function Home() {
           ),
         ),
       ),
-      mergeMap(({ api, elements }) => from(getBase64(elements, api))),
-      distinctUntilChanged(),
+      mergeMap(({ api, elements }) =>
+        from(getBase64(elements, api)).pipe(distinctUntilChanged()),
+      ),
     );
     const base64FromBeautify$ = beautifyRef$.current.pipe(
       distinctUntilChanged(),
     );
     const base64$ = merge(base64FromBeautify$, base64FromExcalidraw$).pipe(
       map((v) => v.replace(/^data:image\/(png|jpeg);base64,/, "")),
+      distinctUntilChanged(),
     );
     const prompt$ = promptRef$.current.pipe(
       distinctUntilChanged(),
@@ -175,7 +177,7 @@ export default function Home() {
         ),
         debounceTime(300),
         filter(() => !loadingRef.current),
-        switchMap(([input_image, prompt]) => {
+        mergeMap(([input_image, prompt]) => {
           loadingRef.current = true;
           setLoading(true);
           const body = {
@@ -229,6 +231,7 @@ export default function Home() {
       });
     return () => subscription.unsubscribe();
   }, [toast]);
+
   return (
     <div className="inset-0 absolute">
       <Toaster></Toaster>
