@@ -135,7 +135,7 @@ export default function Home() {
       ),
     );
     const base64FromExcalidraw$ = merge(
-      element$.pipe(skip(1)),
+      element$,
       excalidrawAPIRef$.current,
     ).pipe(
       debounceTime(300),
@@ -177,6 +177,7 @@ export default function Home() {
         ),
         debounceTime(300),
         filter(() => !loadingRef.current),
+        skip(2),
         mergeMap(([input_image, prompt]) => {
           loadingRef.current = true;
           setLoading(true);
@@ -238,22 +239,27 @@ export default function Home() {
       <GithubForkRibbon></GithubForkRibbon>
       <div className="h-full w-full flex flex-col lg:flex-row">
         <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex flex-col items-center justify-center py-4 px-8 gap-4">
-          <Select
-            disabled={loading}
-            value={presetName}
-            onValueChange={setPresetName}
-          >
-            <SelectTrigger className="w-full flex-0 !ring-0 !ring-offset-0">
-              <SelectValue placeholder="Select a preset" />
-            </SelectTrigger>
-            <SelectContent>
-              {presets.map((p) => (
-                <SelectItem key={p.name} value={p.name}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex w-full items-center space-x-4">
+            <div className="flex-0 text-lg font-medium text-primary">
+              ImgPilot
+            </div>
+            <Select
+              disabled={loading}
+              value={presetName}
+              onValueChange={setPresetName}
+            >
+              <SelectTrigger className="w-full flex-0 !ring-0 !ring-offset-0">
+                <SelectValue placeholder="Select a preset" />
+              </SelectTrigger>
+              <SelectContent>
+                {presets.map((p) => (
+                  <SelectItem key={p.name} value={p.name}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="border-zinc-300 border bg-white flex-1 w-full rounded relative">
             <div className="absolute inset-0 flex justify-center items-center">
               {imgSrc && (
