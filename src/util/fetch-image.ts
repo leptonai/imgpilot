@@ -1,6 +1,10 @@
 import { blobToBase64 } from "@/lib/utils";
 
-export const fetchImage = async (input_image: string, prompt: string) => {
+export const fetchImage = async (
+  input_image: string,
+  prompt: string,
+  signal?: AbortSignal,
+) => {
   const response = await fetch("/api/run", {
     headers: {
       accept: "image/jpeg",
@@ -18,6 +22,7 @@ export const fetchImage = async (input_image: string, prompt: string) => {
       height: 768,
     }),
     method: "POST",
+    signal,
   });
   if (response.status !== 200) throw new Error("Failed to fetch image");
   const blob = await response.blob();
