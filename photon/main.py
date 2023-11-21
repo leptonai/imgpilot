@@ -120,10 +120,18 @@ class ImgPilot(Photon):
                 height=height,
                 lcm_origin_steps=lcm_steps,
                 output_type="pil",
-            ).images[0]
+            )
+
+        nsfw_content_detected = (
+            output_image.nsfw_content_detected[0]
+            if "nsfw_content_detected" in output_image
+            else False
+        )
+        if nsfw_content_detected:
+            return None
 
         img_io = BytesIO()
-        output_image.save(img_io, format="JPEG")
+        output_image.images[0].save(img_io, format="JPEG")
         img_io.seek(0)
         return JPEGResponse(img_io)
 

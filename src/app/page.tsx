@@ -1,5 +1,6 @@
 "use client";
 import { GithubForkRibbon } from "@/components/github";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
 import { zoomToFit } from "@/util/excalidraw";
+import { fetchImage } from "@/util/fetch-image";
 import { predefineState, presets } from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
@@ -30,6 +32,8 @@ export default function Home() {
   const [prompt, setPrompt] = useState(presets[0].prompt);
   const [presetName, setPresetName] = useState(presets[0].name);
   const [presetImage, setPresetImage] = useState(presets[0].base64);
+  const [beautifyImage, setBeautifyImage] = useState("");
+  const [beautifyLoading, setbeautifyLoading] = useState(false);
   const [elements, setElements] = useState<
     readonly NonDeletedExcalidrawElement[]
   >(presets[0].elements);
@@ -37,6 +41,10 @@ export default function Home() {
   const [elementVersion, setElementVersion] = useState(
     elements.map((e) => e.version).join(""),
   );
+
+  useEffect(() => {
+    setBeautifyImage("");
+  }, [prompt, elementVersion]);
 
   const { base64, loading } = useExcalidrawResponse(
     excalidrawAPI,
@@ -54,8 +62,8 @@ export default function Home() {
   }, [excalidrawAPI]);
 
   const imageSrc = useMemo(() => {
-    return base64 || previousBase64 || presetImage;
-  }, [previousBase64, presetImage, base64]);
+    return beautifyImage || base64 || previousBase64 || presetImage;
+  }, [previousBase64, presetImage, base64, beautifyImage]);
 
   useEffect(() => {
     if (!excalidrawAPI) {
@@ -101,6 +109,11 @@ export default function Home() {
                   src={imageSrc}
                 />
               )}
+              {loading && (
+                <div className="text-zinc-200 text-sm absolute right-2 bottom-2">
+                  processing...
+                </div>
+              )}
             </div>
           </div>
           <div className="flex w-full items-center space-x-2">
@@ -111,6 +124,24 @@ export default function Home() {
               className="flex-0 !ring-0 border-zinc-300 !ring-offset-0"
               placeholder="Prompt"
             />
+            <Button
+              disabled={beautifyLoading}
+              size="sm"
+              onClick={() => {
+                if (loading) return;
+                setbeautifyLoading(true);
+                fetchImage(imageSrc, prompt)
+                  .then((data) => {
+                    setBeautifyImage(data);
+                    setbeautifyLoading(false);
+                  })
+                  .catch(() => {
+                    setbeautifyLoading(false);
+                  });
+              }}
+            >
+              {beautifyLoading ? "Processing" : "Beautify"}
+            </Button>
           </div>
         </div>
         <div className="-order-9 lg:order-1 w-full h-2/3 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-l lg:border-b-0">

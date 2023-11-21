@@ -1,5 +1,7 @@
-import { blobToBase64 } from "@/lib/utils";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 import { getBase64 } from "@/util/excalidraw";
+import { fetchImage } from "@/util/fetch-image";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import useSWR from "swr";
@@ -11,40 +13,36 @@ export const useExcalidrawResponse = (
   prompt: string,
   version: string,
 ) => {
+  const { toast } = useToast();
   const [debounced] = useDebounce({ prompt, elements, version }, 300, {
     equalityFn: (prev, next) => {
       return prev.prompt === next.prompt && prev.version === next.version;
     },
   });
   const { data, isLoading } = useSWR(
-    ["/api/run", debounced],
-    async ([url, params]) => {
+    [debounced],
+    async ([params]) => {
       if (excalidrawAPI) {
         try {
-          const input_image = (
-            await getBase64(params.elements, excalidrawAPI, 768)
-          ).replace(/^data:image\/(png|jpeg);base64,/, "");
-          const response = await fetch(url, {
-            headers: {
-              accept: "image/jpeg",
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({
-              input_image,
-              prompt,
-              guidance_scale: 8,
-              lcm_steps: 50,
-              seed: 2159232,
-              steps: 4,
-              strength: 0.7,
-              width: 768,
-              height: 768,
-            }),
-            method: "POST",
-          });
-          const blob = await response.blob();
-          return await blobToBase64(blob);
+          const input_image = await getBase64(
+            params.elements,
+            excalidrawAPI,
+            768,
+          );
+          return await fetchImage(input_image, params.prompt);
         } catch (e) {
+          toast({
+            title: "We are overloaded with service",
+            description:
+              "Please try again later or visit our github repo for local deployment.",
+            action: (
+              <ToastAction asChild altText="Try again">
+                <a href="https://github.com/leptonai/imgpilot" target="_blank">
+                  Github
+                </a>
+              </ToastAction>
+            ),
+          });
           return new Promise((resolve) => resolve(""));
         }
       } else {
