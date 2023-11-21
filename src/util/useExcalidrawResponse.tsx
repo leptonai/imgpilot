@@ -15,6 +15,7 @@ export const useExcalidrawResponse = (
   version: string,
 ) => {
   const errorCountRef = useRef(0);
+  const abortController = useRef<AbortController | null>(null);
   const { toast } = useToast();
   const [debounced] = useDebounce({ prompt, elements, version }, 300, {
     equalityFn: (prev, next) => {
@@ -25,13 +26,21 @@ export const useExcalidrawResponse = (
     [debounced],
     async ([params]) => {
       if (excalidrawAPI) {
+        if (abortController.current) {
+          abortController.current.abort();
+        }
+        abortController.current = new AbortController();
         try {
           const input_image = await getBase64(
             params.elements,
             excalidrawAPI,
             768,
           );
-          return await fetchImage(input_image, params.prompt);
+          return await fetchImage(
+            input_image,
+            params.prompt,
+            abortController.current.signal,
+          );
         } catch (e) {
           errorCountRef.current += 1;
           if (errorCountRef.current > 5) {
