@@ -20,9 +20,16 @@ import { usePrevious } from "@/util/usePrevious";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
+
 import { useEffect, useMemo, useState } from "react";
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
+  {
+    ssr: false,
+  },
+);
+const GitHubCorners = dynamic(
+  async () => (await import("@uiw/react-github-corners")).default,
   {
     ssr: false,
   },
@@ -126,6 +133,10 @@ export default function Home() {
         </div>
         <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
           <div className="-order-9 lg:order-1 w-full h-full lg:w-[60%] rounded border-zinc-300 overflow-hidden border relative">
+            <GitHubCorners
+              position="right"
+              href="https://github.com/leptonai/imgpilot"
+            />
             <GithubForkRibbon></GithubForkRibbon>
             <Excalidraw
               detectScroll={false}
