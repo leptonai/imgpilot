@@ -11,7 +11,19 @@ export const getBase64 = async (
   ).exportToCanvas({
     elements,
     files: api.getFiles(),
-    maxWidthOrHeight: dimensions,
+    getDimensions: (width, height) => {
+      const isWidthGreater = width > height;
+      const ratio = isWidthGreater ? width / height : height / width;
+      const scaledWidth = isWidthGreater ? dimensions : dimensions / ratio;
+      const scaledHeight = isWidthGreater ? dimensions / ratio : dimensions;
+      const scale = dimensions / (isWidthGreater ? width : height);
+
+      return {
+        width: scaledWidth,
+        height: scaledHeight,
+        scale: scale,
+      };
+    },
     exportPadding: 24,
   });
   const dynamicCanvas = document.createElement("canvas");
