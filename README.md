@@ -10,9 +10,9 @@ Image pilot with the power of Real-Time Latent Consistency Model.
 
 ## ✨ Features
 
-- 📦 Includes complete front-end and back-end code.
-- 🌍 Support deployment both locally and in the cloud.
-- 🎨 Fully based on open source and can be used for commercial purposes.
+- Includes complete front-end and back-end code.
+- Support deployment both locally and in the cloud.
+- Fully based on open source and can be used for commercial purposes.
 
 
 ## 📦 Install
@@ -33,5 +33,4 @@ lep photon run -n imgpilot -m photon/main.py --local # server
 
 - [Lepton AI](https://github.com/leptonai/leptonai)
 - [Excalidraw](https://github.com/excalidraw/excalidraw)
-- [RxJS](https://github.com/ReactiveX/rxjs)
 - [Real-Time-Latent-Consistency-Model](https://huggingface.co/spaces/radames/Real-Time-Latent-Consistency-Model)
