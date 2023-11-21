@@ -19,6 +19,7 @@ export const fetchImage = async (input_image: string, prompt: string) => {
     }),
     method: "POST",
   });
+  if (response.status !== 200) throw new Error("Failed to fetch image");
   const blob = await response.blob();
   return await blobToBase64(blob);
 };

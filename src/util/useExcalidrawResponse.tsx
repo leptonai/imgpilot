@@ -4,6 +4,7 @@ import { getBase64 } from "@/util/excalidraw";
 import { fetchImage } from "@/util/fetch-image";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { useRef } from "react";
 import useSWR from "swr";
 import { useDebounce } from "use-debounce";
 
@@ -13,6 +14,7 @@ export const useExcalidrawResponse = (
   prompt: string,
   version: string,
 ) => {
+  const errorCountRef = useRef(0);
   const { toast } = useToast();
   const [debounced] = useDebounce({ prompt, elements, version }, 300, {
     equalityFn: (prev, next) => {
@@ -31,22 +33,29 @@ export const useExcalidrawResponse = (
           );
           return await fetchImage(input_image, params.prompt);
         } catch (e) {
-          toast({
-            title: "We are overloaded with service",
-            description:
-              "Please try again later or visit our github repo for local deployment.",
-            action: (
-              <ToastAction asChild altText="Try again">
-                <a href="https://github.com/leptonai/imgpilot" target="_blank">
-                  Github
-                </a>
-              </ToastAction>
-            ),
-          });
-          return new Promise((resolve) => resolve(""));
+          errorCountRef.current += 1;
+          if (errorCountRef.current > 5) {
+            toast({
+              title: "We are overloaded with service",
+              description:
+                "Please try again later or visit our github repo for local deployment.",
+              action: (
+                <ToastAction asChild altText="Try again">
+                  <a
+                    href="https://github.com/leptonai/imgpilot"
+                    target="_blank"
+                  >
+                    Github
+                  </a>
+                </ToastAction>
+              ),
+            });
+          }
+
+          return "";
         }
       } else {
-        return new Promise((resolve) => resolve(""));
+        return "";
       }
     },
     {
