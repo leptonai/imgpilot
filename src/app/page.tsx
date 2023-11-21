@@ -80,15 +80,14 @@ export default function Home() {
   return (
     <div className="inset-0 absolute">
       <Toaster></Toaster>
-      <GithubForkRibbon></GithubForkRibbon>
       <div className="h-full w-full flex flex-col lg:flex-row">
-        <div className="w-full h-full lg:w-1/2 bg-zinc-100 flex flex-col items-center justify-center py-4 px-8 gap-4">
+        <div className="-order-9 lg:order-1 w-full h-full lg:w-[60%] bg-zinc-100 flex flex-col items-center justify-center py-4 px-4 gap-4">
           <div className="flex w-full items-center space-x-4">
             <div className="flex-0 text-lg font-medium text-primary">
               ImgPilot
             </div>
             <Select value={presetName} onValueChange={setPresetName}>
-              <SelectTrigger className="w-full flex-0 !ring-0 !ring-offset-0">
+              <SelectTrigger className="flex-0 border-zinc-300 !ring-0 !ring-offset-0 flex-shrink-0 w-32">
                 <SelectValue placeholder="Select a preset" />
               </SelectTrigger>
               <SelectContent>
@@ -99,24 +98,6 @@ export default function Home() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex-1 w-full rounded relative">
-            <div className="absolute inset-0 flex justify-center items-center">
-              {imageSrc && (
-                <img
-                  alt="img"
-                  className="border-zinc-300 rounded border w-auto h-auto max-w-full max-h-full"
-                  src={imageSrc}
-                />
-              )}
-              {loading && (
-                <div className="text-zinc-300 font-normal text-sm absolute right-2 bottom-4">
-                  processing...
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
               value={prompt}
@@ -143,21 +124,38 @@ export default function Home() {
               {beautifyLoading ? "Processing" : "Beautify"}
             </Button>
           </div>
+          <div className="flex-1 w-full rounded relative border-zinc-300 overflow-hidden border ">
+            <GithubForkRibbon></GithubForkRibbon>
+            <Excalidraw
+              detectScroll={false}
+              autoFocus={true}
+              initialData={{
+                elements: elements,
+                appState: predefineState,
+              }}
+              excalidrawAPI={excalidrawRefCallback}
+              onChange={(elements, appState) => {
+                setElements(elements);
+                setElementVersion(elements.map((e) => e.version).join(""));
+              }}
+            ></Excalidraw>
+          </div>
         </div>
-        <div className="-order-9 lg:order-1 w-full h-2/3 lg:h-full lg:w-1/2 border-b border-zinc-300 lg:border-l lg:border-b-0">
-          <Excalidraw
-            detectScroll={false}
-            autoFocus={true}
-            initialData={{
-              elements: elements,
-              appState: predefineState,
-            }}
-            excalidrawAPI={excalidrawRefCallback}
-            onChange={(elements, appState) => {
-              setElements(elements);
-              setElementVersion(elements.map((e) => e.version).join(""));
-            }}
-          ></Excalidraw>
+        <div className="w-full h-2/3 lg:h-full lg:w-[40%] border-t border-zinc-300 lg:border-r lg:border-t-0 relative">
+          <div className="absolute inset-0 flex justify-center items-center">
+            {imageSrc && (
+              <img
+                alt="img"
+                className="w-auto h-auto max-w-full max-h-full"
+                src={imageSrc}
+              />
+            )}
+            {loading && (
+              <div className="text-zinc-300 font-normal text-sm absolute right-4 bottom-4">
+                processing...
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
