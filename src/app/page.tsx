@@ -40,13 +40,15 @@ const Excalidraw = dynamic(
   },
 );
 
+const FIXED_DIMENSION = 768;
+
 const zoomToFit = (api: ExcalidrawImperativeAPI | null) => {
   if (!api) {
     return;
   }
   api.scrollToContent(api.getSceneElements(), {
     fitToViewport: true,
-    viewportZoomFactor: 0.8,
+    viewportZoomFactor: 0.7,
   });
 };
 
@@ -54,14 +56,26 @@ const getBase64 = async (
   elements: readonly NonDeletedExcalidrawElement[],
   api: ExcalidrawImperativeAPI,
 ) => {
-  const blob = await (
+  const canvasElement = await (
     await import("@excalidraw/excalidraw")
-  ).exportToBlob({
+  ).exportToCanvas({
     elements,
     files: api.getFiles(),
+    maxWidthOrHeight: FIXED_DIMENSION,
     exportPadding: 24,
   });
-  return await blobToBase64(blob);
+  const dynamicCanvas = document.createElement("canvas");
+  const dynamicContext = dynamicCanvas.getContext("2d")!;
+  dynamicCanvas.height = FIXED_DIMENSION;
+  dynamicCanvas.width = FIXED_DIMENSION;
+  dynamicContext.fillStyle = "#fff";
+  dynamicContext.fillRect(0, 0, dynamicCanvas.width, dynamicCanvas.height);
+  dynamicContext!.drawImage(
+    canvasElement!,
+    (FIXED_DIMENSION - canvasElement.width) / 2,
+    (FIXED_DIMENSION - canvasElement.height) / 2,
+  );
+  return dynamicCanvas.toDataURL("image/png", 0.9);
 };
 export default function Home() {
   const excalidrawAPIRef = useRef<ExcalidrawImperativeAPI | null>(null);
@@ -189,8 +203,8 @@ export default function Home() {
             seed: 2159232,
             steps: 4,
             strength: 0.7,
-            width: 768,
-            height: 768,
+            width: FIXED_DIMENSION,
+            height: FIXED_DIMENSION,
           };
           return fromFetch("/api/run", {
             headers: {
@@ -208,10 +222,7 @@ export default function Home() {
           setLoading(false);
           const blob = await data.blob();
           const base64 = await blobToBase64(blob);
-          const count = base64.split("AooooAKKKKACiiig").length;
-          if (count < 500) {
-            setImgSrc(base64);
-          }
+          setImgSrc(base64);
         },
         error: () => {
           loadingRef.current = false;
