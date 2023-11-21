@@ -52,6 +52,12 @@ html, body {
 
 .Island.App-menu__left {
   z-index: 100;
-  left: 0;
-  bottom: 0;
+  left: 60px;
+  top: 0;
 }
+
+
+.panelColumn fieldset, .panelColumn .control-label {
+  display: none !important;
+}
+

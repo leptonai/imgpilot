@@ -100,17 +100,17 @@ export default function Home() {
               </SelectContent>
             </Select>
           </div>
-          <div className="border-zinc-300 border bg-white flex-1 w-full rounded relative">
+          <div className="flex-1 w-full rounded relative">
             <div className="absolute inset-0 flex justify-center items-center">
               {imageSrc && (
                 <img
                   alt="img"
-                  className="w-auto h-auto max-w-full max-h-full"
+                  className="border-zinc-300 rounded border w-auto h-auto max-w-full max-h-full"
                   src={imageSrc}
                 />
               )}
               {loading && (
-                <div className="text-zinc-200 text-sm absolute right-2 bottom-2">
+                <div className="text-zinc-300 font-normal text-sm absolute right-2 bottom-4">
                   processing...
                 </div>
               )}

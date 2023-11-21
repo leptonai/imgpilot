@@ -24,7 +24,7 @@ export const getBase64 = async (
         scale: scale,
       };
     },
-    exportPadding: 24,
+    exportPadding: 12,
   });
   const dynamicCanvas = document.createElement("canvas");
   const dynamicContext = dynamicCanvas.getContext("2d")!;
