@@ -8,6 +8,7 @@ export const predefineState: Partial<AppState> = {
     locked: false,
     lastActiveTool: null,
   },
+  currentItemBackgroundColor: "#228be6",
 };
 
 export const presets: {

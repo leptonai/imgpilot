@@ -43,6 +43,6 @@ export const getBase64 = async (
 export const zoomToFit = (api: ExcalidrawImperativeAPI) => {
   api.scrollToContent(api.getSceneElements(), {
     fitToViewport: true,
-    viewportZoomFactor: 0.7,
+    viewportZoomFactor: 0.5,
   });
 };

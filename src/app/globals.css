@@ -61,3 +61,9 @@ html, body {
   display: none !important;
 }
 
+
+.excalidraw .App-toolbar--mobile {
+  position: absolute !important;
+  top: 0;
+  width: auto !important;
+}

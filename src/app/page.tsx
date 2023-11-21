@@ -153,7 +153,7 @@ export default function Home() {
               appState: predefineState,
             }}
             excalidrawAPI={excalidrawRefCallback}
-            onChange={(elements) => {
+            onChange={(elements, appState) => {
               setElements(elements);
               setElementVersion(elements.map((e) => e.version).join(""));
             }}
