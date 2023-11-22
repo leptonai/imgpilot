@@ -4,6 +4,7 @@ import { getBase64 } from "@/util/excalidraw";
 import { fetchImage } from "@/util/fetch-image";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { cuss } from "cuss";
 import { useRef } from "react";
 import useSWR from "swr";
 import { useDebounce } from "use-debounce";
@@ -14,12 +15,17 @@ export const useExcalidrawResponse = (
   prompt: string,
   version: string,
 ) => {
+  const words = prompt.split(" ");
+  const filteredWords = words.filter((word) => !(word.toLowerCase() in cuss));
+  const safePrompt = filteredWords.join(" ");
   const errorCountRef = useRef(0);
   const abortController = useRef<AbortController | null>(null);
   const { toast } = useToast();
-  const [debounced] = useDebounce({ prompt, elements, version }, 300, {
+  const [debounced] = useDebounce({ safePrompt, elements, version }, 600, {
     equalityFn: (prev, next) => {
-      return prev.prompt === next.prompt && prev.version === next.version;
+      return (
+        prev.safePrompt === next.safePrompt && prev.version === next.version
+      );
     },
   });
   const { data, isLoading } = useSWR(
@@ -38,10 +44,13 @@ export const useExcalidrawResponse = (
           );
           return await fetchImage(
             input_image,
-            params.prompt,
+            params.safePrompt,
             abortController.current.signal,
           );
         } catch (e) {
+          if (e instanceof Error && e.name === "AbortError") {
+            return;
+          }
           errorCountRef.current += 1;
           if (errorCountRef.current > 5) {
             toast({

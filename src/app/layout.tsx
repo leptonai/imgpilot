@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
@@ -10,7 +10,15 @@ export const metadata: Metadata = {
   title: "ImgPilot",
   description: "Your Image Copilot",
 };
+const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  userScalable: false,
+  maximumScale: 1,
+  minimumScale: 1,
+};
 
+export { viewport };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
