@@ -7,7 +7,7 @@ import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { cuss } from "cuss";
 import { useRef } from "react";
 import useSWR from "swr";
-import { useDebounce, useThrottledCallback } from "use-debounce";
+import { useDebounce } from "use-debounce";
 
 export const useExcalidrawResponse = (
   excalidrawAPI: ExcalidrawImperativeAPI | null,
@@ -28,54 +28,60 @@ export const useExcalidrawResponse = (
       );
     },
   });
-  const fetcher = useThrottledCallback(async ([params]) => {
-    if (excalidrawAPI) {
-      if (abortController.current) {
-        abortController.current.abort();
-      }
-      abortController.current = new AbortController();
-      try {
-        const input_image = await getBase64(
-          params.elements,
-          excalidrawAPI,
-          768,
-        );
-        return await fetchImage(
-          input_image,
-          params.safePrompt,
-          abortController.current.signal,
-        );
-      } catch (e) {
-        if (e instanceof Error && e.name === "AbortError") {
-          return;
+  const { data, isLoading } = useSWR(
+    [debounced],
+    async ([params]) => {
+      if (excalidrawAPI) {
+        if (abortController.current) {
+          abortController.current.abort();
         }
-        errorCountRef.current += 1;
-        if (errorCountRef.current > 5) {
-          toast({
-            title: "We are overloaded with service",
-            description:
-              "Please try again later or visit our github repo for local deployment.",
-            action: (
-              <ToastAction asChild altText="Try again">
-                <a href="https://github.com/leptonai/imgpilot" target="_blank">
-                  Github
-                </a>
-              </ToastAction>
-            ),
-          });
-        }
+        abortController.current = new AbortController();
+        try {
+          const input_image = await getBase64(
+            params.elements,
+            excalidrawAPI,
+            768,
+          );
+          return await fetchImage(
+            input_image,
+            params.safePrompt,
+            abortController.current.signal,
+          );
+        } catch (e) {
+          if (e instanceof Error && e.name === "AbortError") {
+            return;
+          }
+          errorCountRef.current += 1;
+          if (errorCountRef.current > 5) {
+            toast({
+              title: "We are overloaded with service",
+              description:
+                "Please try again later or visit our github repo for local deployment.",
+              action: (
+                <ToastAction asChild altText="Try again">
+                  <a
+                    href="https://github.com/leptonai/imgpilot"
+                    target="_blank"
+                  >
+                    Github
+                  </a>
+                </ToastAction>
+              ),
+            });
+          }
 
+          return "";
+        }
+      } else {
         return "";
       }
-    } else {
-      return "";
-    }
-  }, 1000);
-  const { data, isLoading } = useSWR([debounced], fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    refreshWhenOffline: false,
-    refreshInterval: 0,
-  });
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshInterval: 0,
+    },
+  );
   return { base64: data as string, loading: isLoading };
 };
