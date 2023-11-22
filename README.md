@@ -4,7 +4,11 @@
 Image pilot with the power of Real-Time Latent Consistency Model.
 <br/>
 <br/>
-![imgpilot](https://imgpilot.com/imgpilot.webm)
+
+
+https://github.com/leptonai/imgpilot/assets/1506722/c35d8947-0e2f-4fe4-a887-16ad8edb441f
+
+
 [DEMO](https://imgpilot.com/)
 </div>
 
