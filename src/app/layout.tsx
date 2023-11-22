@@ -18,7 +18,6 @@ const viewport: Viewport = {
   minimumScale: 1,
 };
 
-export { viewport };
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -27,3 +26,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
+export { viewport };

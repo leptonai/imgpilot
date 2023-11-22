@@ -8,7 +8,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/toaster";
 import { zoomToFit } from "@/util/excalidraw";
@@ -89,13 +88,12 @@ export default function Home() {
     <div className="inset-0 absolute">
       <Toaster></Toaster>
       <div className="h-full w-full flex flex-col bg-zinc-100">
-        <div className="flex-0 flex w-full items-center space-x-4 p-4 pb-0">
-          <div className="flex-0 text-lg font-medium text-primary">
-            ImgPilot
-          </div>
+        <div className="flex-0 flex w-full items-center space-x-2 p-4 pb-0">
           <Select value={presetName} onValueChange={setPresetName}>
-            <SelectTrigger className="flex-0 border-zinc-300 !ring-0 !ring-offset-0 flex-shrink-0 w-32">
-              <SelectValue placeholder="Select a preset" />
+            <SelectTrigger className="flex-0 border-none bg-transparent !ring-0 !ring-offset-0 flex-shrink-0 w-32">
+              <div className="flex-0 text-lg font-medium text-primary">
+                ImgPilot
+              </div>
             </SelectTrigger>
             <SelectContent>
               {presets.map((p) => (
