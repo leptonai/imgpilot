@@ -4,7 +4,7 @@
 Image pilot with the power of Real-Time Latent Consistency Model.
 <br/>
 <br/>
-![preview](https://imgpilot.com/preview.gif)
+![imgpilot](https://imgpilot.com/imgpilot.webm)
 [DEMO](https://imgpilot.com/)
 </div>
 
