@@ -5,7 +5,7 @@ import { fetchImage } from "@/util/fetch-image";
 import { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import { cuss } from "cuss";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import useSWR from "swr";
 import { useDebounce } from "use-debounce";
 
@@ -28,6 +28,21 @@ export const useExcalidrawResponse = (
       );
     },
   });
+
+  const popupToast = useCallback(() => {
+    toast({
+      title: "We are overloaded with service",
+      description:
+        "Please try again later or visit our github repo for local deployment.",
+      action: (
+        <ToastAction asChild altText="Try again">
+          <a href="https://github.com/leptonai/imgpilot" target="_blank">
+            Github
+          </a>
+        </ToastAction>
+      ),
+    });
+  }, [toast]);
   const { data, isLoading } = useSWR(
     [debounced],
     async ([params]) => {
@@ -52,22 +67,9 @@ export const useExcalidrawResponse = (
             return;
           }
           errorCountRef.current += 1;
-          if (errorCountRef.current > 5) {
-            toast({
-              title: "We are overloaded with service",
-              description:
-                "Please try again later or visit our github repo for local deployment.",
-              action: (
-                <ToastAction asChild altText="Try again">
-                  <a
-                    href="https://github.com/leptonai/imgpilot"
-                    target="_blank"
-                  >
-                    Github
-                  </a>
-                </ToastAction>
-              ),
-            });
+          if (errorCountRef.current > 1) {
+            popupToast();
+            errorCountRef.current = 0;
           }
 
           return "";
