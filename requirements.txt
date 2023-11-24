@@ -1,0 +1,6 @@
+leptonai
+torch
+diffusers
+invisible-watermark
+compel
+Pillow

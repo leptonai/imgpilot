@@ -22,16 +22,28 @@ https://github.com/leptonai/imgpilot/assets/1506722/c35d8947-0e2f-4fe4-a887-16ad
 ## 📦 Install
 
 ```bash
-npm install # web
-pip install -U leptonai # server
+# Install web dependencies
+npm install
+
+# Install server dependencies
+pip install -r requirements.txt -U
 ```
 
 ## ⌨️ Development
 
 ```bash
-npm run dev # web
-lep photon run -n imgpilot -m photon/main.py --local # server
+# Start server on localhost:8080
+
+lep photon run -n imgpilot -m photon/main.py --local
 ```
+
+```bash
+# Start web server on localhost:3000
+
+npm run dev
+```
+
+
 
 ## 🔗 Built with
 

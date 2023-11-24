@@ -1,7 +1,5 @@
-import base64
 from io import BytesIO
 import os
-import tempfile
 import threading
 from typing import Optional, Union
 import warnings
@@ -99,6 +97,8 @@ class ImgPilot(Photon):
                     self.base.unet = torch.compile(
                         self.base.unet, mode="reduce-overhead", fullgraph=True
                     )
+        else:
+            self.use_torch_compile = False
         logger.info(f"Initialized model {os.environ['MODEL']}. cuda: {cuda_available}.")
 
     @Photon.handler(

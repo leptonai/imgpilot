@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { createClient } from "@vercel/kv";
 
-const API_URL = process.env?.API_URL || "http://localhost:8080";
+const API_URL = process.env?.API_URL || "http://127.0.0.1:8080";
 const API_TOKEN = process.env?.API_TOKEN || "";
 
 const kv =
@@ -42,16 +42,11 @@ export async function POST(req: NextRequest) {
     req.headers.get("Content-Type") || "application/json",
   );
   const url = new URL("/run", API_URL);
-  const body = await req.text();
 
-  const res = await fetch(url.toString(), {
-    body: body,
+  return fetch(url.toString(), {
+    body: req.body,
     method: req.method,
     headers,
-  });
-
-  return new Response(res.body, {
-    status: res.status,
-    headers: res.headers,
-  });
+    duplex: "half",
+  } as unknown as RequestInit);
 }
