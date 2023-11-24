@@ -4,6 +4,7 @@ import os
 import tempfile
 import threading
 from typing import Optional, Union
+import warnings
 
 from compel import Compel
 from fastapi.responses import StreamingResponse
@@ -36,9 +37,10 @@ class ImgPilot(Photon):
         "resource_shape": "gpu.a10",
         "env": {
             "MODEL": "SimianLuo/LCM_Dreamshaper_v7",
-            "USE_TORCH_COMPILE": "true",
+            "USE_TORCH_COMPILE": "false",
             "WIDTH": "768",
             "HEIGHT": "768",
+            "PRINT_PROMPT": "false",
         },
     }
 
@@ -63,6 +65,14 @@ class ImgPilot(Photon):
         self.base.safety_checker = None
         self.base.requires_safety_checker = False
         self.base_lock = threading.Lock()
+        self.print_prompt = os.environ["PRINT_PROMPT"].lower() in [
+            "true",
+            "t",
+            "1",
+            "yes",
+            "y",
+        ]
+        logger.info(f"print_prompt: {self.print_prompt}")
         if cuda_available:
             self.base.to("cuda")
             self.use_torch_compile = os.environ["USE_TORCH_COMPILE"].lower() in [
@@ -73,16 +83,22 @@ class ImgPilot(Photon):
                 "y",
             ]
             if self.use_torch_compile:
-                self.width = int(os.environ["WIDTH"])
-                self.height = int(os.environ["HEIGHT"])
-                logger.info(
-                    "Compiling model with torch.compile. Note that with torch compile,"
-                    " your first invocation will be slow, but subsequent invocations"
-                    " will be faster."
-                )
-                self.base.unet = torch.compile(
-                    self.base.unet, mode="reduce-overhead", fullgraph=True
-                )
+                if self.handler_max_concurrency > 1:
+                    warnings.warn(
+                        "torch compile does not support multithreading, so we will"
+                        " disable torch compile since handler_max_concurrency > 1."
+                    )
+                else:
+                    self.width = int(os.environ["WIDTH"])
+                    self.height = int(os.environ["HEIGHT"])
+                    logger.info(
+                        "Compiling model with torch.compile. Note that with torch"
+                        " compile, your first invocation will be slow, but subsequent"
+                        " invocations will be faster."
+                    )
+                    self.base.unet = torch.compile(
+                        self.base.unet, mode="reduce-overhead", fullgraph=True
+                    )
         logger.info(f"Initialized model {os.environ['MODEL']}. cuda: {cuda_available}.")
 
     @Photon.handler(
@@ -117,12 +133,17 @@ class ImgPilot(Photon):
         input_image: Optional[Union[str, FileParam]],
     ) -> JPEGResponse:
         from diffusers.utils import load_image  # type: ignore
+        import time
+
+        start = time.time()
 
         compel_proc = Compel(
             tokenizer=self.base.tokenizer,
             text_encoder=self.base.text_encoder,
             truncate_long_prompts=False,
         )  # type: ignore
+        if self.print_prompt:
+            logger.info(f"Prompt: {prompt}")
         prompt_embeds = compel_proc(prompt)
         if input_image is not None:
             image_file = get_file_content(input_image, return_file=True)
@@ -170,6 +191,7 @@ class ImgPilot(Photon):
             img_io = BytesIO()
             output_image.images[0].save(img_io, format="JPEG")  # type: ignore
             img_io.seek(0)
+            logger.info(f"Produced output in {time.time() - start} seconds.")
             return JPEGResponse(img_io)
 
 
