@@ -6,7 +6,8 @@ Image pilot with the power of Real-Time Latent Consistency Model.
 <br/>
 
 
-https://github.com/leptonai/imgpilot/assets/1506722/c35d8947-0e2f-4fe4-a887-16ad8edb441f
+[preview.webm](https://github.com/leptonai/imgpilot/assets/1506722/673ffa1b-e680-4f69-b219-31b5265e1cb4)
+
 
 
 [DEMO](https://imgpilot.com/)
