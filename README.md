@@ -27,7 +27,7 @@ Image pilot with the power of Real-Time Latent Consistency Model.
 npm install
 
 # Install server dependencies
-pip install -r requirements.txt -U
+pip install -r photon/lcm_dreamshaper/requirements.txt -U
 ```
 
 ## ⌨️ Development
@@ -35,7 +35,7 @@ pip install -r requirements.txt -U
 ```bash
 # Start server on localhost:8080
 
-lep photon run -n imgpilot -m photon/main.py --local
+lep photon run -n imgpilot -m photon/lcm_dreamshaper/main.py --local
 ```
 
 ```bash
