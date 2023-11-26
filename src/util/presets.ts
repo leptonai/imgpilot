@@ -33,6 +33,9 @@ export const artStyles = [
   "Fauvism",
 ];
 
+export const presetPrompt =
+  "beautiful watercolor painting, impressionism style";
+
 export const presetElements: readonly NonDeletedExcalidrawElement[] = [
   {
     id: "tLI7-n4F_aNVxp-H0J9eD",

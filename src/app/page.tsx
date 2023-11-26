@@ -11,12 +11,14 @@ import { getRandomDifferent } from "@/lib/utils";
 import { zoomToFit } from "@/util/excalidraw";
 import { fetchImage } from "@/util/fetch-image";
 import {
-  artStyles,
-  paintingTypes,
-  predefineState,
-  presetBase64,
-  presetElements,
-} from "@/util/presets";
+  getLocalElements,
+  getLocalImage,
+  getLocalPrompt,
+  saveToLocalElements,
+  saveToLocalImage,
+  saveToLocalPrompt,
+} from "@/util/local-store";
+import { artStyles, paintingTypes, predefineState } from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
@@ -43,21 +45,25 @@ const GitHubCorners = dynamic(
 export default function Home() {
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
-  const [prompt, setPrompt] = useState(
-    "beautiful watercolor painting, impressionism style",
-  );
+  const [prompt, setPrompt] = useState("");
   const paintType = useRef<string | null>(null);
   const artStyle = useRef<string | null>(null);
-
-  const [presetImage, setPresetImage] = useState(presetBase64);
   const [beautifyImage, setBeautifyImage] = useState("");
   const [beautifyLoading, setBeautifyLoading] = useState(false);
+  const [init, setInit] = useState(false);
+  const [localImage, setLocalImage] = useState("");
   const [activeTool, setActiveTool] = useState("freedraw");
   const [elements, setElements] =
-    useState<readonly NonDeletedExcalidrawElement[]>(presetElements);
+    useState<readonly NonDeletedExcalidrawElement[]>(getLocalElements());
   const [elementVersion, setElementVersion] = useState(
     elements.map((e) => e.version).join(""),
   );
+
+  useEffect(() => {
+    setPrompt(getLocalPrompt());
+    setLocalImage(getLocalImage());
+    setInit(true);
+  }, []);
 
   useEffect(() => {
     setBeautifyImage("");
@@ -70,6 +76,18 @@ export default function Home() {
     elementVersion,
   );
 
+  useEffect(() => {
+    if (base64) {
+      saveToLocalImage(base64);
+    }
+  }, [base64]);
+
+  useEffect(() => {
+    if (prompt) {
+      saveToLocalPrompt(prompt);
+    }
+  }, [prompt]);
+
   const previousBase64 = usePrevious(base64);
 
   useEffect(() => {
@@ -79,8 +97,8 @@ export default function Home() {
   }, [excalidrawAPI]);
 
   const imageSrc = useMemo(() => {
-    return beautifyImage || base64 || previousBase64 || presetImage;
-  }, [previousBase64, presetImage, base64, beautifyImage]);
+    return beautifyImage || base64 || previousBase64 || localImage;
+  }, [previousBase64, base64, beautifyImage, localImage]);
 
   return (
     <div className="inset-0 absolute">
@@ -99,6 +117,7 @@ export default function Home() {
                 }}
                 excalidrawAPI={excalidrawRefCallback}
                 onChange={(elements, appState) => {
+                  saveToLocalElements(elements);
                   setActiveTool(appState.activeTool.type);
                   const currentActiveTool = appState.activeTool.type;
                   if (
@@ -128,7 +147,7 @@ export default function Home() {
               href="https://github.com/leptonai/imgpilot"
             />
             <div className="absolute inset-0 flex justify-center items-center">
-              {imageSrc && (
+              {imageSrc && init && (
                 <img
                   alt="img"
                   className="w-auto h-auto max-w-full max-h-full"
