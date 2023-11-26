@@ -1,4 +1,4 @@
-import { presetBase64, presetElements, presetPrompt } from "@/util/presets";
+import { presetBase64, presetPrompt } from "@/util/presets";
 import type {
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
@@ -91,7 +91,7 @@ export const getLocalElements = () => {
       console.error(error);
     }
   }
-  return elements.length === 0 ? presetElements : elements;
+  return elements;
 };
 
 export const saveToLocalElements = (elements: readonly ExcalidrawElement[]) => {

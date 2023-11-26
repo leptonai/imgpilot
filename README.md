@@ -6,7 +6,7 @@ Image pilot with the power of Real-Time Latent Consistency Model.
 <br/>
 
 
-[preview.webm](https://github.com/leptonai/imgpilot/assets/1506722/673ffa1b-e680-4f69-b219-31b5265e1cb4)
+[preview.webm](https://github.com/leptonai/imgpilot/assets/1506722/5118e266-6db5-4451-96f3-bc97de594cc6)
 
 
 
@@ -49,5 +49,5 @@ npm run dev
 ## 🔗 Built with
 
 - [Lepton AI](https://github.com/leptonai/leptonai)
-- [Fabric.js](https://github.com/fabricjs/fabric.js)
+- [Excalidraw](https://github.com/excalidraw/excalidraw)
 - [Real-Time-Latent-Consistency-Model](https://huggingface.co/spaces/radames/Real-Time-Latent-Consistency-Model)

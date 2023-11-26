@@ -24,7 +24,7 @@ import { artStyles, paintingTypes, predefineState } from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
-import { MagicWandFilled, Shuffle } from "@carbon/icons-react";
+import { Download, MagicWandFilled, Shuffle } from "@carbon/icons-react";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
@@ -118,8 +118,8 @@ export default function Home() {
             <div className="flex-0 w-11 border-r bg-zinc-100 border-zinc-200"></div>
             <div className={`flex-1 relative ${activeTool}`}>
               <Excalidraw
-                detectScroll={false}
-                autoFocus={false}
+                detectScroll={true}
+                autoFocus={true}
                 initialData={{
                   elements: elements,
                   appState: predefineState,
@@ -164,10 +164,20 @@ export default function Home() {
                 />
               )}
               {(loading || beautifyLoading) && (
-                <div className="text-zinc-300 font-normal text-sm absolute right-4 bottom-4">
+                <div className="text-zinc-300 font-normal text-sm absolute right-14 bottom-4">
                   processing...
                 </div>
               )}
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute bottom-2 right-2"
+                asChild
+              >
+                <a href={imageSrc} download>
+                  <Download />
+                </a>
+              </Button>
             </div>
           </div>
         </div>
@@ -187,7 +197,6 @@ export default function Home() {
               </div>
               <Input
                 type="text"
-                autoFocus
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 className="h-9 !ring-0 border-zinc-300 !ring-offset-0"
