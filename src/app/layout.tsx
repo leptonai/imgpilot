@@ -7,8 +7,8 @@ import { ReactNode } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ImgPilot",
-  description: "Your Image Copilot",
+  title: "ImgPilot ｜ Turn the draft into an amazing artwork",
+  description: "Turn the draft into an amazing artwork",
 };
 const viewport: Viewport = {
   width: "device-width",

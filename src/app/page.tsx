@@ -26,6 +26,7 @@ import { MagicWandFilled, Shuffle } from "@carbon/icons-react";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -162,9 +163,14 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex-0 flex w-full items-center gap-8 px-4 pb-8">
-          <div className="flex-0 text-lg font-medium text-primary">
-            ImgPilot
+        <div className="flex-0 flex w-full items-center gap-6 px-4 pb-8">
+          <div className="flex gap-1 items-center">
+            <div className="flex-0">
+              <Image alt="logo" src="/logo.svg" height={36} width={36} />
+            </div>
+            <div className="flex-0 text-2xl font-medium text-primary">
+              ImgPilot
+            </div>
           </div>
           <div className="flex-1 flex gap-2">
             <Input
