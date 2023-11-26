@@ -12,3 +12,16 @@ export function blobToBase64(blob: Blob): Promise<string> {
     reader.readAsDataURL(blob);
   });
 }
+
+export function getRandomDifferent<T>(arr: T[], lastItem: T | null): T {
+  if (arr.length === 1) {
+    return arr[0];
+  }
+
+  let item: T;
+  do {
+    item = arr[Math.floor(Math.random() * arr.length)];
+  } while (item === lastItem);
+
+  return item;
+}

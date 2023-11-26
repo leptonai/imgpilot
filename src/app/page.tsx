@@ -1,25 +1,27 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+
 import { Toaster } from "@/components/ui/toaster";
+import { getRandomDifferent } from "@/lib/utils";
 import { zoomToFit } from "@/util/excalidraw";
 import { fetchImage } from "@/util/fetch-image";
-import { predefineState, presets } from "@/util/presets";
+import {
+  artStyles,
+  paintingTypes,
+  predefineState,
+  presetBase64,
+  presetElements,
+} from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
-import { MagicWandFilled } from "@carbon/icons-react";
+import { MagicWandFilled, Shuffle } from "@carbon/icons-react";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -37,15 +39,18 @@ const GitHubCorners = dynamic(
 export default function Home() {
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
-  const [prompt, setPrompt] = useState(presets[0].prompt);
-  const [presetName, setPresetName] = useState(presets[0].name);
-  const [presetImage, setPresetImage] = useState(presets[0].base64);
+  const [prompt, setPrompt] = useState(
+    "beautiful watercolor painting, impressionism style",
+  );
+  const paintType = useRef<string | null>(null);
+  const artStyle = useRef<string | null>(null);
+
+  const [presetImage, setPresetImage] = useState(presetBase64);
   const [beautifyImage, setBeautifyImage] = useState("");
   const [beautifyLoading, setBeautifyLoading] = useState(false);
   const [activeTool, setActiveTool] = useState("freedraw");
-  const [elements, setElements] = useState<
-    readonly NonDeletedExcalidrawElement[]
-  >(presets[0].elements);
+  const [elements, setElements] =
+    useState<readonly NonDeletedExcalidrawElement[]>(presetElements);
   const [elementVersion, setElementVersion] = useState(
     elements.map((e) => e.version).join(""),
   );
@@ -72,18 +77,6 @@ export default function Home() {
   const imageSrc = useMemo(() => {
     return beautifyImage || base64 || previousBase64 || presetImage;
   }, [previousBase64, presetImage, base64, beautifyImage]);
-
-  useEffect(() => {
-    if (!excalidrawAPI) {
-      return;
-    }
-    const preset = presets.find((p) => p.name === presetName)!;
-    excalidrawAPI.updateScene({ elements: preset.elements });
-    zoomToFit(excalidrawAPI);
-    setPrompt(preset.prompt);
-    setPresetImage(preset.base64);
-    setElements(preset.elements);
-  }, [presetName, excalidrawAPI]);
 
   return (
     <div className="inset-0 absolute">
@@ -139,16 +132,47 @@ export default function Home() {
                 />
               )}
               {(loading || beautifyLoading) && (
-                <div className="text-zinc-300 font-normal text-sm absolute right-14 bottom-4">
+                <div className="text-zinc-300 font-normal text-sm absolute right-4 bottom-4">
                   processing...
                 </div>
               )}
             </div>
+          </div>
+        </div>
+        <div className="flex-0 flex w-full items-center gap-8 px-4 pb-8">
+          <div className="flex-0 text-lg font-medium text-primary">
+            ImgPilot
+          </div>
+          <div className="flex-1 flex gap-2">
+            <Input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="flex-0 !ring-0 border-zinc-300 !ring-offset-0"
+              placeholder="Prompt"
+            />
             <Button
               disabled={beautifyLoading}
               size="sm"
-              variant="ghost"
-              className="absolute right-2 bottom-2"
+              onClick={() => {
+                artStyle.current = getRandomDifferent(
+                  artStyles,
+                  artStyle.current,
+                );
+                paintType.current = getRandomDifferent(
+                  paintingTypes,
+                  paintType.current,
+                );
+                setPrompt(
+                  `beautify ${paintType.current}, ${artStyle.current} style`,
+                );
+              }}
+            >
+              <Shuffle />
+            </Button>
+            <Button
+              disabled={beautifyLoading}
+              size="sm"
               onClick={() => {
                 if (loading) return;
                 setBeautifyLoading(true);
@@ -165,29 +189,6 @@ export default function Home() {
               <MagicWandFilled />
             </Button>
           </div>
-        </div>
-        <div className="flex-0 flex w-full items-center space-x-2 px-4 pb-8">
-          <Select value={presetName} onValueChange={setPresetName}>
-            <SelectTrigger className="flex-0 border-none bg-transparent !ring-0 !ring-offset-0 flex-shrink-0 w-32">
-              <div className="flex-0 text-lg font-medium text-primary">
-                ImgPilot
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              {presets.map((p) => (
-                <SelectItem key={p.name} value={p.name}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="flex-0 !ring-0 border-zinc-300 !ring-offset-0"
-            placeholder="Prompt"
-          />
         </div>
       </div>
     </div>

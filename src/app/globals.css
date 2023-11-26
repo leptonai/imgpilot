@@ -162,3 +162,7 @@ html, body {
 .excalidraw .color-picker__input-label:focus-within {
   box-shadow: none !important;
 }
+
+.panelColumn .color-picker__button {
+  border: none !important;
+}
