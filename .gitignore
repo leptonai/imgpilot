@@ -21,7 +21,7 @@
 *.pem
 .idea
 __pycache__
-
+public/excalidraw
 # debug
 npm-debug.log*
 yarn-debug.log*

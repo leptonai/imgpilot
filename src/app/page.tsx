@@ -1,4 +1,8 @@
 "use client";
+if (typeof window !== "undefined") {
+  (window as any).EXCALIDRAW_ASSET_PATH = "/excalidraw/dist/";
+}
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
