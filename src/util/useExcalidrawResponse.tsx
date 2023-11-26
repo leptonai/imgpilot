@@ -17,7 +17,7 @@ export const useExcalidrawResponse = (
 ) => {
   const words = prompt.split(" ");
   const filteredWords = words.filter((word) => !(word.toLowerCase() in cuss));
-  const safePrompt = filteredWords.join(" ");
+  const safePrompt = filteredWords.join(" ").replace(/[^a-zA-Z,.!? ]/g, "");
   const errorCountRef = useRef(0);
   const abortController = useRef<AbortController | null>(null);
   const { toast } = useToast();

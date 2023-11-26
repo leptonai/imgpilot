@@ -77,7 +77,7 @@ export default function Home() {
   const { base64, loading } = useExcalidrawResponse(
     excalidrawAPI,
     elements,
-    `${target},beautify ${prompt}`,
+    `${target},beautify ${prompt} style`,
     elementVersion,
   );
 
@@ -94,9 +94,7 @@ export default function Home() {
   }, [prompt]);
 
   useEffect(() => {
-    if (target) {
-      saveToLocalTarget(target);
-    }
+    saveToLocalTarget(target);
   }, [target]);
 
   const previousBase64 = usePrevious(base64);
@@ -173,7 +171,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex-0 flex w-full items-center gap-6 px-4 pb-8">
+        <div className="flex-0 flex w-full items-end gap-6 px-4 pb-8">
           <div className="flex gap-1 items-center">
             <div className="flex-0 hidden md:block">
               <Image alt="logo" src="/logo.svg" height={36} width={36} />
@@ -182,22 +180,32 @@ export default function Home() {
               ImgPilot
             </div>
           </div>
-          <div className="flex-1 flex gap-2 items-center">
-            <Input
-              type="text"
-              autoFocus
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              className="flex-0 !ring-0 border-zinc-300 !ring-offset-0 w-full md:w-80"
-              placeholder="What do you want to draw"
-            />
-            <Input
-              type="text"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              className="hidden md:block flex-0 !ring-0 bg-zinc-950 text-zinc-100 !ring-offset-0"
-              placeholder="What is the painting style"
-            />
+          <div className="flex-1 flex gap-2 items-end">
+            <div className="flex-0 w-full md:w-80">
+              <div className="text-xs pl-1 text-zinc-600">
+                What do you want to draw
+              </div>
+              <Input
+                type="text"
+                autoFocus
+                value={target}
+                onChange={(e) => setTarget(e.target.value)}
+                className="h-9 !ring-0 border-zinc-300 !ring-offset-0"
+                placeholder=""
+              />
+            </div>
+            <div className="flex-1 hidden md:block">
+              <div className="text-xs pl-1 text-zinc-600">
+                What is the painting style
+              </div>
+              <Input
+                type="text"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="h-9 !ring-0 border-zinc-300 !ring-offset-0"
+                placeholder=""
+              />
+            </div>
             <Button
               disabled={beautifyLoading}
               size="sm"
@@ -210,7 +218,7 @@ export default function Home() {
                   paintingTypes,
                   paintType.current,
                 );
-                setPrompt(`${paintType.current}, ${artStyle.current} style`);
+                setPrompt(`${paintType.current}, ${artStyle.current}`);
               }}
             >
               <Shuffle />
