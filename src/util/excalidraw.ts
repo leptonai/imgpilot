@@ -37,12 +37,12 @@ export const getBase64 = async (
     (dimensions - canvasElement.width) / 2,
     (dimensions - canvasElement.height) / 2,
   );
-  return dynamicCanvas.toDataURL("image/png", 0.9);
+  return dynamicCanvas.toDataURL("image/jpeg", 0.1);
 };
 
 export const zoomToFit = (api: ExcalidrawImperativeAPI) => {
   api.scrollToContent(api.getSceneElements(), {
     fitToViewport: true,
-    viewportZoomFactor: 0.5,
+    viewportZoomFactor: 0.9,
   });
 };

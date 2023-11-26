@@ -3,6 +3,7 @@ import { blobToBase64 } from "@/lib/utils";
 export const fetchImage = async (
   input_image: string,
   prompt: string,
+  size: number,
   signal?: AbortSignal,
 ) => {
   const response = await fetch("/api/run", {
@@ -18,8 +19,8 @@ export const fetchImage = async (
       seed: 2159232,
       steps: 4,
       strength: 0.7,
-      width: 768,
-      height: 768,
+      width: size,
+      height: size,
     }),
     method: "POST",
     signal,

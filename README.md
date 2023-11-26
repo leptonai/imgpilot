@@ -49,5 +49,5 @@ npm run dev
 ## 🔗 Built with
 
 - [Lepton AI](https://github.com/leptonai/leptonai)
-- [Excalidraw](https://github.com/excalidraw/excalidraw)
+- [Fabric.js](https://github.com/fabricjs/fabric.js)
 - [Real-Time-Latent-Consistency-Model](https://huggingface.co/spaces/radames/Real-Time-Latent-Consistency-Model)

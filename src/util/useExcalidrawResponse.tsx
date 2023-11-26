@@ -52,14 +52,16 @@ export const useExcalidrawResponse = (
         }
         abortController.current = new AbortController();
         try {
+          const size = 768;
           const input_image = await getBase64(
             params.elements,
             excalidrawAPI,
-            768,
+            size,
           );
           return await fetchImage(
             input_image,
             params.safePrompt,
+            size,
             abortController.current.signal,
           );
         } catch (e) {
