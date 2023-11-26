@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   LOCAL_STORAGE_ELEMENTS: "imgpilot_elements",
   LOCAL_STORAGE_IMAGE: "imgpilot_image",
   LOCAL_STORAGE_PROMPT: "imgpilot_prompt",
+  LOCAL_STORAGE_TARGET: "imgpilot_target",
 } as const;
 
 const getLocalStorage = () => {
@@ -22,6 +23,21 @@ const getLocalStorage = () => {
   } else {
     return null;
   }
+};
+
+export const getLocalTarget = () => {
+  let saveTarget = "";
+  try {
+    saveTarget =
+      getLocalStorage()?.getItem(STORAGE_KEYS.LOCAL_STORAGE_TARGET) || "";
+  } catch (e) {
+    console.error(e);
+  }
+  return saveTarget;
+};
+
+export const saveToLocalTarget = (target: string) => {
+  getLocalStorage()?.setItem(STORAGE_KEYS.LOCAL_STORAGE_TARGET, target);
 };
 
 export const getLocalPrompt = () => {

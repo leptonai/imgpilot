@@ -14,27 +14,26 @@ export const predefineState: Partial<AppState> = {
 };
 
 export const paintingTypes = [
-  "Oil Painting",
-  "Watercolor Painting",
-  "Acrylic Painting",
-  "Drawing",
-  "Printmaking",
+  "oil painting",
+  "watercolor painting",
+  "acrylic painting",
+  "drawing",
+  "printmaking",
 ];
 
 export const artStyles = [
-  "Realism",
-  "Impressionism",
-  "Expressionism",
-  "Cubism",
-  "Abstract Art",
-  "Surrealism",
-  "Baroque",
-  "Rococo",
-  "Fauvism",
+  "realism",
+  "impressionism",
+  "expressionism",
+  "cubism",
+  "abstract art",
+  "surrealism",
+  "baroque",
+  "rococo",
+  "fauvism",
 ];
 
-export const presetPrompt =
-  "beautiful watercolor painting, impressionism style";
+export const presetPrompt = "watercolor painting, impressionism style";
 
 export const presetElements: readonly NonDeletedExcalidrawElement[] = [
   {

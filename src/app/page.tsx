@@ -14,9 +14,11 @@ import {
   getLocalElements,
   getLocalImage,
   getLocalPrompt,
+  getLocalTarget,
   saveToLocalElements,
   saveToLocalImage,
   saveToLocalPrompt,
+  saveToLocalTarget,
 } from "@/util/local-store";
 import { artStyles, paintingTypes, predefineState } from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
@@ -47,6 +49,7 @@ export default function Home() {
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
   const [prompt, setPrompt] = useState("");
+  const [target, setTarget] = useState("");
   const paintType = useRef<string | null>(null);
   const artStyle = useRef<string | null>(null);
   const [beautifyImage, setBeautifyImage] = useState("");
@@ -62,6 +65,7 @@ export default function Home() {
 
   useEffect(() => {
     setPrompt(getLocalPrompt());
+    setTarget(getLocalTarget());
     setLocalImage(getLocalImage());
     setInit(true);
   }, []);
@@ -73,7 +77,7 @@ export default function Home() {
   const { base64, loading } = useExcalidrawResponse(
     excalidrawAPI,
     elements,
-    prompt,
+    `${target},beautify ${prompt}`,
     elementVersion,
   );
 
@@ -88,6 +92,12 @@ export default function Home() {
       saveToLocalPrompt(prompt);
     }
   }, [prompt]);
+
+  useEffect(() => {
+    if (target) {
+      saveToLocalTarget(target);
+    }
+  }, [target]);
 
   const previousBase64 = usePrevious(base64);
 
@@ -111,7 +121,7 @@ export default function Home() {
             <div className={`flex-1 relative ${activeTool}`}>
               <Excalidraw
                 detectScroll={false}
-                autoFocus={true}
+                autoFocus={false}
                 initialData={{
                   elements: elements,
                   appState: predefineState,
@@ -165,20 +175,28 @@ export default function Home() {
         </div>
         <div className="flex-0 flex w-full items-center gap-6 px-4 pb-8">
           <div className="flex gap-1 items-center">
-            <div className="flex-0">
+            <div className="flex-0 hidden md:block">
               <Image alt="logo" src="/logo.svg" height={36} width={36} />
             </div>
             <div className="flex-0 text-2xl font-medium text-primary">
               ImgPilot
             </div>
           </div>
-          <div className="flex-1 flex gap-2">
+          <div className="flex-1 flex gap-2 items-center">
+            <Input
+              type="text"
+              autoFocus
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              className="flex-0 !ring-0 border-zinc-300 !ring-offset-0 w-full md:w-80"
+              placeholder="What do you want to draw"
+            />
             <Input
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="flex-0 !ring-0 border-zinc-300 !ring-offset-0"
-              placeholder="Prompt"
+              className="hidden md:block flex-0 !ring-0 bg-zinc-950 text-zinc-100 !ring-offset-0"
+              placeholder="What is the painting style"
             />
             <Button
               disabled={beautifyLoading}
@@ -192,9 +210,7 @@ export default function Home() {
                   paintingTypes,
                   paintType.current,
                 );
-                setPrompt(
-                  `beautify ${paintType.current}, ${artStyle.current} style`,
-                );
+                setPrompt(`${paintType.current}, ${artStyle.current} style`);
               }}
             >
               <Shuffle />
