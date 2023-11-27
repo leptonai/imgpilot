@@ -50,12 +50,12 @@ export default function Home() {
     useCallbackRefState<ExcalidrawImperativeAPI>();
   const [prompt, setPrompt] = useState("");
   const [target, setTarget] = useState("");
+  const [localImage, setLocalImage] = useState("");
+  const [beautifyImage, setBeautifyImage] = useState("");
   const paintType = useRef<string | null>(null);
   const artStyle = useRef<string | null>(null);
-  const [beautifyImage, setBeautifyImage] = useState("");
   const [beautifyLoading, setBeautifyLoading] = useState(false);
   const [init, setInit] = useState(false);
-  const [localImage, setLocalImage] = useState("");
   const [activeTool, setActiveTool] = useState("freedraw");
   const [elements, setElements] =
     useState<readonly NonDeletedExcalidrawElement[]>(getLocalElements());
@@ -94,7 +94,9 @@ export default function Home() {
   }, [prompt]);
 
   useEffect(() => {
-    saveToLocalTarget(target);
+    if (target) {
+      saveToLocalTarget(target);
+    }
   }, [target]);
 
   const previousBase64 = usePrevious(base64);
@@ -128,22 +130,6 @@ export default function Home() {
                 onChange={(elements, appState) => {
                   saveToLocalElements(elements);
                   setActiveTool(appState.activeTool.type);
-                  const currentActiveTool = appState.activeTool.type;
-                  if (
-                    (currentActiveTool === "ellipse" &&
-                      activeTool !== "ellipse") ||
-                    (currentActiveTool === "rectangle" &&
-                      activeTool !== "rectangle")
-                  ) {
-                    appState.currentItemStrokeColor = "transparent";
-                  }
-                  if (
-                    (currentActiveTool === "freedraw" &&
-                      activeTool !== "freedraw") ||
-                    (currentActiveTool === "text" && activeTool !== "text")
-                  ) {
-                    appState.currentItemStrokeColor = "#000";
-                  }
                   setElements(elements);
                   setElementVersion(elements.map((e) => e.version).join(""));
                 }}

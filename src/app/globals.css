@@ -54,6 +54,8 @@ html, body {
   --button-height: 28px !important;
   --border-radius-lg: 2px !important;
   --color-surface-primary-container: #ccc !important;
+  --color-surface-high: #ccc !important;
+  --color-primary-darkest: #111 !important;
   --color-brand-hover: transparent !important;
   --button-active-border: transparent !important;
 }
@@ -70,10 +72,6 @@ html, body {
 
 
 .panelColumn fieldset, .panelColumn .control-label {
-  display: none !important;
-}
-
-.ellipse .panelColumn > div:first-of-type, .rectangle .panelColumn > div:first-of-type {
   display: none !important;
 }
 
@@ -145,7 +143,11 @@ html, body {
 }
 
 .excalidraw .color-picker__button--large {
-  --radius: 4px !important;
+  --radius: 100% !important;
+}
+
+.excalidraw .color-picker__button.active-color {
+  --radius: 100% !important;
 }
 
 .excalidraw .App-bottom-bar > .Island .panelColumn {
@@ -165,4 +167,9 @@ html, body {
 
 .panelColumn .color-picker__button {
   border: none !important;
+}
+
+.excalidraw .App-toolbar-container .ToolIcon__icon {
+  width: 36px !important;
+  height: 36px !important;
 }
