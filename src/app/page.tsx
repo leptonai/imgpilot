@@ -24,13 +24,19 @@ import { artStyles, paintingTypes, predefineState } from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
-import { Download, MagicWandFilled, Shuffle } from "@carbon/icons-react";
+import {
+  CircleDash,
+  Download,
+  MagicWandFilled,
+  Shuffle,
+} from "@carbon/icons-react";
 import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useThrottledCallback } from "use-debounce";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
@@ -63,6 +69,13 @@ export default function Home() {
     elements.map((e) => e.version).join(""),
   );
 
+  const setElementVersionThrottle = useThrottledCallback(
+    setElementVersion,
+    1500,
+  );
+
+  const setElementsThrottle = useThrottledCallback(setElements, 1500);
+
   useEffect(() => {
     setPrompt(getLocalPrompt());
     setTarget(getLocalTarget());
@@ -74,10 +87,15 @@ export default function Home() {
     setBeautifyImage("");
   }, [prompt, elementVersion]);
 
+  const realPrompt = useMemo(
+    () => `${target},beautify ${prompt} style`,
+    [prompt, target],
+  );
+
   const { base64, loading } = useExcalidrawResponse(
     excalidrawAPI,
     elements,
-    `${target},beautify ${prompt} style`,
+    realPrompt,
     elementVersion,
   );
 
@@ -130,8 +148,10 @@ export default function Home() {
                 onChange={(elements, appState) => {
                   saveToLocalElements(elements);
                   setActiveTool(appState.activeTool.type);
-                  setElements(elements);
-                  setElementVersion(elements.map((e) => e.version).join(""));
+                  setElementsThrottle(elements);
+                  setElementVersionThrottle(
+                    elements.map((e) => e.version).join(""),
+                  );
                 }}
               ></Excalidraw>
             </div>
@@ -150,8 +170,8 @@ export default function Home() {
                 />
               )}
               {(loading || beautifyLoading) && (
-                <div className="text-zinc-300 font-normal text-sm absolute right-14 bottom-4">
-                  processing...
+                <div className="absolute left-4 bottom-4">
+                  <CircleDash className="h-4 w-4 text-zinc-400 animate-spin"></CircleDash>
                 </div>
               )}
               <Button
@@ -224,7 +244,7 @@ export default function Home() {
               onClick={() => {
                 if (loading) return;
                 setBeautifyLoading(true);
-                fetchImage(imageSrc, prompt, 512)
+                fetchImage(imageSrc, realPrompt, 512)
                   .then((data) => {
                     setBeautifyImage(data);
                     setBeautifyLoading(false);

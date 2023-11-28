@@ -21,11 +21,11 @@ export const useExcalidrawResponse = (
   const errorCountRef = useRef(0);
   const abortController = useRef<AbortController | null>(null);
   const { toast } = useToast();
-  const [debounced] = useDebounce({ safePrompt, elements, version }, 600, {
+
+  const [debouncedSafePrompt] = useDebounce(safePrompt, 600);
+  const [debounced] = useDebounce({ elements, version }, 0, {
     equalityFn: (prev, next) => {
-      return (
-        prev.safePrompt === next.safePrompt && prev.version === next.version
-      );
+      return prev.version === next.version;
     },
   });
 
@@ -44,11 +44,11 @@ export const useExcalidrawResponse = (
     });
   }, [toast]);
   const { data, isLoading } = useSWR(
-    [debounced],
-    async ([params]) => {
+    [debounced, debouncedSafePrompt],
+    async ([params, debouncedSafePrompt]) => {
       if (excalidrawAPI) {
         if (abortController.current) {
-          abortController.current.abort();
+          // abortController.current.abort();
         }
         abortController.current = new AbortController();
         try {
@@ -60,7 +60,7 @@ export const useExcalidrawResponse = (
           );
           return await fetchImage(
             input_image,
-            params.safePrompt,
+            debouncedSafePrompt,
             size,
             abortController.current.signal,
           );
