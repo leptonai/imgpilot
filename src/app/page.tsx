@@ -145,7 +145,7 @@ export default function Home() {
               {imageSrc && init && (
                 <img
                   alt="img"
-                  className="w-auto h-auto max-w-full max-h-full"
+                  className="w-full h-full object-contain"
                   src={imageSrc}
                 />
               )}
@@ -224,7 +224,7 @@ export default function Home() {
               onClick={() => {
                 if (loading) return;
                 setBeautifyLoading(true);
-                fetchImage(imageSrc, prompt, 768)
+                fetchImage(imageSrc, prompt, 512)
                   .then((data) => {
                     setBeautifyImage(data);
                     setBeautifyLoading(false);
