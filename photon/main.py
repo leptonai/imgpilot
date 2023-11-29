@@ -37,8 +37,8 @@ class ImgPilot(Photon):
         "env": {
             "MODEL": "SimianLuo/LCM_Dreamshaper_v7",
             "USE_TORCH_COMPILE": "false",
-            "WIDTH": "768",
-            "HEIGHT": "768",
+            "WIDTH": "512",
+            "HEIGHT": "512",
             "PRINT_PROMPT": "false",
         },
     }
@@ -101,6 +101,19 @@ class ImgPilot(Photon):
                     self.base.unet = torch.compile(
                         self.base.unet, mode="reduce-overhead", fullgraph=True
                     )
+                    logger.info("Pre-warm model by calling base once.")
+                    self.run(
+                        prompt="a cat",
+                        seed=2159232,
+                        strength=0.5,
+                        steps=4,
+                        guidance_scale=8.0,
+                        width=self.width,
+                        height=self.height,
+                        lcm_steps=50,
+                        input_image=EXAMPLE_IMAGE_BASE64,
+                    )
+
         else:
             self.use_torch_compile = False
 
@@ -143,6 +156,7 @@ class ImgPilot(Photon):
         lcm_steps: int,
         input_image: Optional[Union[str, FileParam]],
     ) -> JPEGResponse:
+        logger.debug("running lcm")
         from diffusers.utils import load_image  # type: ignore
         import time
 
@@ -180,6 +194,7 @@ class ImgPilot(Photon):
                     )
             input_image = load_image(pil_image).convert("RGB")
 
+        logger.debug("start compute")
         with self.base_lock:
             generator = torch.manual_seed(seed)
             output_image = self.base(
@@ -195,6 +210,7 @@ class ImgPilot(Photon):
                 lcm_origin_steps=lcm_steps,
                 output_type="pil",
             )  # type: ignore
+        logger.debug("finish compute")
 
         nsfw_content_detected = (
             output_image.nsfw_content_detected[0]
