@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from io import BytesIO
 import os
 import threading
@@ -44,7 +45,7 @@ class ImgPilot(Photon):
 
     # A10 should be able to support a maximum concurrency of 8 requests to interleave
     # IO and compute. This is not tuned by the way.
-    handler_max_concurrency = 8
+    handler_max_concurrency = 1
 
     def init(self):
         from diffusers import AutoPipelineForImage2Image  # type: ignore
@@ -62,7 +63,10 @@ class ImgPilot(Photon):
         )
         self.base.safety_checker = None
         self.base.requires_safety_checker = False
-        self.base_lock = threading.Lock()
+        if self.handler_max_concurrency > 1:
+            self.base_lock = threading.Lock()
+        else:
+            self.base_lock = nullcontext()
         self.print_prompt = os.environ["PRINT_PROMPT"].lower() in [
             "true",
             "t",
@@ -99,6 +103,13 @@ class ImgPilot(Photon):
                     )
         else:
             self.use_torch_compile = False
+
+        self.compel_proc = Compel(
+            tokenizer=self.base.tokenizer,
+            text_encoder=self.base.text_encoder,
+            truncate_long_prompts=False,
+        )  # type: ignore
+
         logger.info(f"Initialized model {os.environ['MODEL']}. cuda: {cuda_available}.")
 
     @Photon.handler(
@@ -114,8 +125,8 @@ class ImgPilot(Photon):
             "strength": 0.5,
             "steps": 4,
             "guidance_scale": 8.0,
-            "width": 768,
-            "height": 768,
+            "width": 512,
+            "height": 512,
             "lcm_steps": 50,
             "input_image": EXAMPLE_IMAGE_BASE64,
         },
@@ -137,14 +148,18 @@ class ImgPilot(Photon):
 
         start = time.time()
 
-        compel_proc = Compel(
-            tokenizer=self.base.tokenizer,
-            text_encoder=self.base.text_encoder,
-            truncate_long_prompts=False,
-        )  # type: ignore
         if self.print_prompt:
             logger.info(f"Prompt: {prompt}")
-        prompt_embeds = compel_proc(prompt)
+
+        # diffusers truncates prompt to 77 tokens, in case prompt is too long, we will
+        # use compel to process the prompt (but compel is slower)
+        tokens = self.base.tokenizer(prompt, return_tensors="pt")
+        if tokens.input_ids.shape[1] > 77:
+            prompt_embeds = self.compel_proc(prompt)
+            prompt = None
+        else:
+            prompt_embeds = None
+
         if input_image is not None:
             image_file = get_file_content(input_image, return_file=True)
             pil_image = Image.open(image_file, formats=["JPEG", "PNG", "GIF", "BMP"])
@@ -168,6 +183,7 @@ class ImgPilot(Photon):
         with self.base_lock:
             generator = torch.manual_seed(seed)
             output_image = self.base(
+                prompt=prompt,
                 prompt_embeds=prompt_embeds,
                 generator=generator,
                 image=input_image,
