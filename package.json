@@ -20,6 +20,7 @@
     "@upstash/ratelimit": "^0.4.4",
     "@vercel/analytics": "^1.1.1",
     "@vercel/kv": "^1.0.0",
+    "bad-words": "^3.0.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cuss": "^2.2.0",

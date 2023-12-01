@@ -71,10 +71,10 @@ export default function Home() {
 
   const setElementVersionThrottle = useThrottledCallback(
     setElementVersion,
-    1500,
+    1000,
   );
 
-  const setElementsThrottle = useThrottledCallback(setElements, 1500);
+  const setElementsThrottle = useThrottledCallback(setElements, 1000);
 
   useEffect(() => {
     setPrompt(getLocalPrompt());
