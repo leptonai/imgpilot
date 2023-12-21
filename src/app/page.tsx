@@ -3,6 +3,7 @@ if (typeof window !== "undefined") {
   (window as any).EXCALIDRAW_ASSET_PATH = "/excalidraw/dist/";
 }
 
+import { Dice } from "@/components/dice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -24,14 +25,10 @@ import {
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
-import {
-  CircleDash,
-  Download,
-  MagicWandFilled,
-  Shuffle,
-} from "@carbon/icons-react";
+import { CircleDash, Download } from "@carbon/icons-react";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
+import { Wand2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 
@@ -255,7 +252,7 @@ export default function Home() {
                 }));
               }}
             >
-              <Shuffle />
+              <Dice />
             </Button>
             <Button
               disabled={beautifyLoading}
@@ -273,7 +270,7 @@ export default function Home() {
                   });
               }}
             >
-              <MagicWandFilled />
+              <Wand2 size={16} />
             </Button>
           </div>
         </div>
