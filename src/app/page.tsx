@@ -117,7 +117,7 @@ export default function Home() {
       <Toaster></Toaster>
       <div className="h-full w-full flex flex-col gap-8 pt-8">
         <div className="flex-1 flex flex-col lg:flex-row gap-4 px-4">
-          <div className="w-24 shrink-0 hidden lg:flex border border-zinc-300 rounded flex-col items-center gap-2 py-2 bg-zinc-100">
+          <div className="w-24 shrink-0 hidden lg:flex border border-zinc-300 rounded flex-col items-center gap-2 py-2 bg-white">
             {presets.map((preset) => (
               <div
                 key={preset.name}
@@ -131,7 +131,7 @@ export default function Home() {
                     setTimeout(() => zoomToFit(excalidrawAPI));
                   }
                 }}
-                className="h-20 w-20 border border-zinc-300 rounded p-2 bg-white cursor-pointer"
+                className="h-20 w-20 border border-zinc-200 rounded p-2 bg-white cursor-pointer"
               >
                 <img src={preset.base64} className="object-cover" />
               </div>
