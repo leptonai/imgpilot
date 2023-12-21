@@ -23,12 +23,6 @@ export const useExcalidrawResponse = (
   const { toast } = useToast();
 
   const [debouncedSafePrompt] = useDebounce(safePrompt, 600);
-  const [debounced] = useDebounce({ elements, version }, 0, {
-    equalityFn: (prev, next) => {
-      return prev.version === next.version;
-    },
-  });
-
   const popupToast = useCallback(() => {
     toast({
       title: "We are overloaded with service",
@@ -44,7 +38,7 @@ export const useExcalidrawResponse = (
     });
   }, [toast]);
   const { data, isLoading } = useSWR(
-    [debounced, debouncedSafePrompt],
+    [elements, debouncedSafePrompt, version],
     async ([params, debouncedSafePrompt]) => {
       if (excalidrawAPI) {
         if (abortController.current) {
@@ -53,11 +47,7 @@ export const useExcalidrawResponse = (
         abortController.current = new AbortController();
         try {
           const size = 512;
-          const input_image = await getBase64(
-            params.elements,
-            excalidrawAPI,
-            size,
-          );
+          const input_image = await getBase64(params, excalidrawAPI, size);
           return await fetchImage(
             input_image,
             debouncedSafePrompt,

@@ -150,9 +150,7 @@ export default function Home() {
                 excalidrawAPI={excalidrawRefCallback}
                 onChange={(elements, appState) => {
                   setActiveTool(appState.activeTool.type);
-                  if (getVersion(drawState.elements) !== getVersion(elements)) {
-                    setDrawStateThrottle((state) => ({ ...state, elements }));
-                  }
+                  setDrawStateThrottle((state) => ({ ...state, elements }));
                 }}
               ></Excalidraw>
             </div>
