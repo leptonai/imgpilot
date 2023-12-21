@@ -45,7 +45,7 @@ export const zoomToFit = (api: ExcalidrawImperativeAPI) => {
   if (elements.length > 0) {
     api.scrollToContent(elements, {
       fitToViewport: true,
-      viewportZoomFactor: 0.9,
+      viewportZoomFactor: 0.8,
     });
   }
 };

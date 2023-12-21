@@ -1,4 +1,4 @@
-import { presetBase64, presetPrompt } from "@/util/presets";
+import { artStyles, paintingTypes, presets } from "@/util/presets";
 import type {
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
@@ -10,11 +10,19 @@ export const getNonDeletedElements = (elements: readonly ExcalidrawElement[]) =>
     (element) => !element.isDeleted,
   ) as readonly NonDeletedExcalidrawElement[];
 
+export type LocalState = {
+  style: string;
+  prompt: string;
+  image: string;
+  elements: readonly ExcalidrawElement[];
+};
+
 export const STORAGE_KEYS = {
   LOCAL_STORAGE_ELEMENTS: "imgpilot_elements",
   LOCAL_STORAGE_IMAGE: "imgpilot_image",
   LOCAL_STORAGE_PROMPT: "imgpilot_prompt",
   LOCAL_STORAGE_TARGET: "imgpilot_target",
+  LOCAL_STATE: "imgpilot_local_state",
 } as const;
 
 const getLocalStorage = () => {
@@ -25,80 +33,33 @@ const getLocalStorage = () => {
   }
 };
 
-export const getLocalTarget = () => {
-  let saveTarget = "";
-  try {
-    saveTarget =
-      getLocalStorage()?.getItem(STORAGE_KEYS.LOCAL_STORAGE_TARGET) || "";
-  } catch (e) {
-    console.error(e);
-  }
-  return saveTarget;
-};
-
-export const saveToLocalTarget = (target: string) => {
-  getLocalStorage()?.setItem(STORAGE_KEYS.LOCAL_STORAGE_TARGET, target);
-};
-
-export const getLocalPrompt = () => {
-  let savePrompt = presetPrompt;
-  try {
-    savePrompt =
-      getLocalStorage()?.getItem(STORAGE_KEYS.LOCAL_STORAGE_PROMPT) ||
-      presetPrompt;
-  } catch (e) {
-    console.error(e);
-  }
-  return savePrompt;
-};
-
-export const saveToLocalPrompt = (prompt: string) => {
-  getLocalStorage()?.setItem(STORAGE_KEYS.LOCAL_STORAGE_PROMPT, prompt);
-};
-
-export const getLocalImage = () => {
-  let savedImage = presetBase64;
-  try {
-    savedImage =
-      getLocalStorage()?.getItem(STORAGE_KEYS.LOCAL_STORAGE_IMAGE) ||
-      presetBase64;
-  } catch (e) {
-    console.error(e);
-  }
-  return savedImage;
-};
-
-export const saveToLocalImage = (base64: string) => {
-  getLocalStorage()?.setItem(STORAGE_KEYS.LOCAL_STORAGE_IMAGE, base64);
-};
-
-export const getLocalElements = () => {
-  let savedElements = null;
+export const getLocalState = (): LocalState => {
+  let savedState: LocalState = {
+    style: `${paintingTypes[0]} ${artStyles[0]}`,
+    prompt: presets[0].prompt,
+    image: presets[0].base64,
+    elements: presets[0].elements,
+  };
 
   try {
-    savedElements = getLocalStorage()?.getItem(
-      STORAGE_KEYS.LOCAL_STORAGE_ELEMENTS,
+    const parsed = JSON.parse(
+      getLocalStorage()?.getItem(STORAGE_KEYS.LOCAL_STATE) || "",
     );
+    savedState = {
+      style: parsed.style,
+      prompt: parsed.prompt,
+      image: parsed.image,
+      elements: clearElementsForLocalStorage(parsed.elements) || [],
+    };
   } catch (error: any) {
     console.error(error);
   }
 
-  let elements: ExcalidrawElement[] = [];
-  if (savedElements) {
-    try {
-      elements = clearElementsForLocalStorage(JSON.parse(savedElements));
-    } catch (error: any) {
-      console.error(error);
-    }
-  }
-  return elements;
+  return savedState;
 };
 
-export const saveToLocalElements = (elements: readonly ExcalidrawElement[]) => {
-  getLocalStorage()?.setItem(
-    STORAGE_KEYS.LOCAL_STORAGE_ELEMENTS,
-    JSON.stringify(elements),
-  );
+export const saveToLocalState = (state: LocalState) => {
+  getLocalStorage()?.setItem(STORAGE_KEYS.LOCAL_STATE, JSON.stringify(state));
 };
 
 export const isLinearElementType = (

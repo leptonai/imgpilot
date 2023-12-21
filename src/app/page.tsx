@@ -11,16 +11,16 @@ import { getRandomDifferent } from "@/lib/utils";
 import { zoomToFit } from "@/util/excalidraw";
 import { fetchImage } from "@/util/fetch-image";
 import {
-  getLocalElements,
-  getLocalImage,
-  getLocalPrompt,
-  getLocalTarget,
-  saveToLocalElements,
-  saveToLocalImage,
-  saveToLocalPrompt,
-  saveToLocalTarget,
+  getLocalState,
+  LocalState,
+  saveToLocalState,
 } from "@/util/local-store";
-import { artStyles, paintingTypes, predefineState } from "@/util/presets";
+import {
+  artStyles,
+  paintingTypes,
+  predefineState,
+  presets,
+} from "@/util/presets";
 import { useCallbackRefState } from "@/util/useCallbackRefState";
 import { useExcalidrawResponse } from "@/util/useExcalidrawResponse";
 import { usePrevious } from "@/util/usePrevious";
@@ -30,7 +30,7 @@ import {
   MagicWandFilled,
   Shuffle,
 } from "@carbon/icons-react";
-import type { NonDeletedExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
+import type { ExcalidrawElement } from "@excalidraw/excalidraw/types/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types/types";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -51,73 +51,63 @@ const GitHubCorners = dynamic(
     ssr: false,
   },
 );
+
+const getVersion = (elements: readonly ExcalidrawElement[]): string => {
+  return elements.map((e) => e.version).join("");
+};
 export default function Home() {
   const [excalidrawAPI, excalidrawRefCallback] =
     useCallbackRefState<ExcalidrawImperativeAPI>();
-  const [prompt, setPrompt] = useState("");
-  const [target, setTarget] = useState("");
-  const [localImage, setLocalImage] = useState("");
+  const [drawState, setDrawState] = useState<LocalState>({
+    style: "",
+    prompt: "",
+    image: "",
+    elements: [],
+  });
   const [beautifyImage, setBeautifyImage] = useState("");
   const paintType = useRef<string | null>(null);
   const artStyle = useRef<string | null>(null);
   const [beautifyLoading, setBeautifyLoading] = useState(false);
   const [init, setInit] = useState(false);
   const [activeTool, setActiveTool] = useState("freedraw");
-  const [elements, setElements] =
-    useState<readonly NonDeletedExcalidrawElement[]>(getLocalElements());
-  const [elementVersion, setElementVersion] = useState(
-    elements.map((e) => e.version).join(""),
-  );
-
-  const setElementVersionThrottle = useThrottledCallback(
-    setElementVersion,
-    1000,
-  );
-
-  const setElementsThrottle = useThrottledCallback(setElements, 1000);
-
   useEffect(() => {
-    setPrompt(getLocalPrompt());
-    setTarget(getLocalTarget());
-    setLocalImage(getLocalImage());
+    setDrawState(getLocalState());
     setInit(true);
   }, []);
+  const setDrawStateThrottle = useThrottledCallback(setDrawState, 500);
 
   useEffect(() => {
     setBeautifyImage("");
-  }, [prompt, elementVersion]);
+  }, [drawState.prompt, drawState.elements]);
 
   const realPrompt = useMemo(
-    () => `${target},beautify ${prompt} style`,
-    [prompt, target],
+    () => `${drawState.prompt},beautify ${drawState.style} style`,
+    [drawState.prompt, drawState.style],
   );
 
   const { base64, loading } = useExcalidrawResponse(
     excalidrawAPI,
-    elements,
+    drawState.elements,
     realPrompt,
-    elementVersion,
+    getVersion(drawState.elements),
   );
 
-  useEffect(() => {
-    if (base64) {
-      saveToLocalImage(base64);
-    }
-  }, [base64]);
-
-  useEffect(() => {
-    if (prompt) {
-      saveToLocalPrompt(prompt);
-    }
-  }, [prompt]);
-
-  useEffect(() => {
-    if (target) {
-      saveToLocalTarget(target);
-    }
-  }, [target]);
-
   const previousBase64 = usePrevious(base64);
+
+  const imageSrc = useMemo(() => {
+    return beautifyImage || base64 || previousBase64 || drawState.image;
+  }, [previousBase64, base64, beautifyImage, drawState.image]);
+
+  useEffect(() => {
+    if (
+      drawState.elements.length ||
+      imageSrc ||
+      drawState.prompt ||
+      drawState.style
+    ) {
+      saveToLocalState({ ...drawState, image: imageSrc });
+    }
+  }, [drawState, imageSrc]);
 
   useEffect(() => {
     if (excalidrawAPI) {
@@ -125,15 +115,31 @@ export default function Home() {
     }
   }, [excalidrawAPI]);
 
-  const imageSrc = useMemo(() => {
-    return beautifyImage || base64 || previousBase64 || localImage;
-  }, [previousBase64, base64, beautifyImage, localImage]);
-
   return (
     <div className="inset-0 absolute">
       <Toaster></Toaster>
       <div className="h-full w-full flex flex-col gap-8 pt-8">
-        <div className="flex-1 flex flex-col lg:flex-row gap-8 px-4">
+        <div className="flex-1 flex flex-col lg:flex-row gap-4 px-4">
+          <div className="w-24 shrink-0 hidden lg:flex border border-zinc-300 rounded flex-col items-center gap-2 py-2 bg-zinc-100">
+            {presets.map((preset) => (
+              <div
+                key={preset.name}
+                onClick={() => {
+                  setDrawState((state) => ({
+                    ...state,
+                    prompt: preset.prompt,
+                  }));
+                  if (excalidrawAPI) {
+                    excalidrawAPI.updateScene({ elements: preset.elements });
+                    setTimeout(() => zoomToFit(excalidrawAPI));
+                  }
+                }}
+                className="h-20 w-20 border border-zinc-300 rounded p-2 bg-white cursor-pointer"
+              >
+                <img src={preset.base64} className="object-cover" />
+              </div>
+            ))}
+          </div>
           <div className="w-full h-full min-h-[500px] lg:w-1/2 rounded border-zinc-300 overflow-hidden border relative flex">
             <div className="flex-0 w-11 border-r bg-zinc-100 border-zinc-200"></div>
             <div className={`flex-1 relative ${activeTool}`}>
@@ -141,17 +147,15 @@ export default function Home() {
                 detectScroll={true}
                 autoFocus={true}
                 initialData={{
-                  elements: elements,
+                  elements: drawState.elements,
                   appState: predefineState,
                 }}
                 excalidrawAPI={excalidrawRefCallback}
                 onChange={(elements, appState) => {
-                  saveToLocalElements(elements);
                   setActiveTool(appState.activeTool.type);
-                  setElementsThrottle(elements);
-                  setElementVersionThrottle(
-                    elements.map((e) => e.version).join(""),
-                  );
+                  if (getVersion(drawState.elements) !== getVersion(elements)) {
+                    setDrawStateThrottle((state) => ({ ...state, elements }));
+                  }
                 }}
               ></Excalidraw>
             </div>
@@ -187,24 +191,34 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="flex-0 flex w-full items-end gap-6 px-4 pb-8">
+        <div className="flex w-full items-end gap-6 px-4 pb-8">
           <div className="flex gap-1 items-center">
             <div className="flex-0 hidden md:block">
-              <Image alt="logo" src="/logo.svg" height={36} width={36} />
+              <Image alt="logo" src="/logo.svg" height={46} width={46} />
             </div>
-            <div className="flex-0 text-2xl font-medium text-primary">
-              ImgPilot
+            <div className="flex-0 flex flex-col">
+              <div className="text-2xl font-medium text-primary">ImgPilot</div>
+              <div className="text-xs text-zinc-600 hover:text-zinc-900">
+                <a href="https://lepton.ai" target="_blank">
+                  Powered by Lepton AI
+                </a>
+              </div>
             </div>
           </div>
           <div className="flex-1 flex gap-2 items-end">
-            <div className="flex-0 w-full md:w-80">
+            <div className="flex-0 w-full md:w-96">
               <div className="text-xs pl-1 text-zinc-600">
                 What do you want to draw
               </div>
               <Input
                 type="text"
-                value={target}
-                onChange={(e) => setTarget(e.target.value)}
+                value={drawState.prompt}
+                onChange={(e) =>
+                  setDrawState((state) => ({
+                    ...state,
+                    prompt: e.target.value,
+                  }))
+                }
                 className="h-9 !ring-0 border-zinc-300 !ring-offset-0"
                 placeholder=""
               />
@@ -215,8 +229,10 @@ export default function Home() {
               </div>
               <Input
                 type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                value={drawState.style}
+                onChange={(e) =>
+                  setDrawState((state) => ({ ...state, style: e.target.value }))
+                }
                 className="h-9 !ring-0 border-zinc-300 !ring-offset-0"
                 placeholder=""
               />
@@ -233,7 +249,10 @@ export default function Home() {
                   paintingTypes,
                   paintType.current,
                 );
-                setPrompt(`${paintType.current}, ${artStyle.current}`);
+                setDrawState((state) => ({
+                  ...state,
+                  style: `${paintType.current}, ${artStyle.current}`,
+                }));
               }}
             >
               <Shuffle />
