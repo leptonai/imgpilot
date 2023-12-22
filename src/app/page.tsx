@@ -193,7 +193,7 @@ export default function Home() {
             </div>
             <div className="flex-0 flex flex-col">
               <div className="text-2xl font-medium text-primary">ImgPilot</div>
-              <div className="text-xs text-zinc-600 hover:text-zinc-900">
+              <div className="text-xs hidden md:block text-zinc-600 hover:text-zinc-900">
                 <a href="https://lepton.ai" target="_blank">
                   Powered by Lepton AI
                 </a>
