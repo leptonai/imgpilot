@@ -16,7 +16,6 @@ const kv =
 const ratelimit = kv
   ? new Ratelimit({
       redis: kv,
-      // 10 requests from the same IP in 1 second
       limiter: Ratelimit.slidingWindow(100, "1 s"),
     })
   : null;
