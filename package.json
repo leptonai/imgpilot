@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@carbon/icons-react": "^11.30.1",
-    "@excalidraw/excalidraw": "^0.17.0",
+    "@excalidraw/excalidraw": "^0.17.6",
     "@headlessui/react": "^1.7.17",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
