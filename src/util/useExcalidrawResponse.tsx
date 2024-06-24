@@ -25,9 +25,9 @@ export const useExcalidrawResponse = (
   const [debouncedSafePrompt] = useDebounce(safePrompt, 600);
   const popupToast = useCallback(() => {
     toast({
-      title: "We are overloaded with service",
+      title: "Service Discontinued",
       description:
-        "Please try again later or visit our github repo for local deployment.",
+        "To continue using this service, please set it up using the open-source project.",
       action: (
         <ToastAction asChild altText="Try again">
           <a href="https://github.com/leptonai/imgpilot" target="_blank">
