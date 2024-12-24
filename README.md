@@ -35,7 +35,7 @@ pip install -r requirements.txt -U
 ```bash
 # Start server on localhost:8080
 
-lep photon run -n imgpilot -m photon/main.py --local
+lep photon runlocal -n imgpilot -m photon/main.py
 ```
 
 ```bash
